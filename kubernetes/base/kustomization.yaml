@@ -1,0 +1,6 @@
+namespace: ondemand-dev
+
+resources:
+- ondemand.yaml
+- ingress.yaml
+- service.yaml

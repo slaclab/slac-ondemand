@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ondemand
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ondemand
+  template:
+    metadata:
+      labels:
+        app: ondemand
+    spec:
+      nodeSelector:
+        storage/staas: 'true'
+      containers:
+      - name: ondemand
+        image: slaclab/slac-ondemand:20200414.0
+        imagePullPolicy: Always
+        env:
+        - name: OOD_SERVERNAME
+          value: ondemand-dev.slac.stanford.edu
+        - name: OOD_DEFAULT_SSHHOST
+          value: centos7.slac.stanford.edu
+        volumeMounts:
+        - name: homes
+          mountPath: /u/sf/
+        - name: slac-ood-jupyter
+          mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
+        - name: slac-ood-desktop
+          mountPath: /var/www/ood/apps/sys/bc_desktop
+        - name: slac-ood-cryosparc
+          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        - name: dashboard-logs
+          mountPath: /var/www/ood/apps/sys/dashboard/log
+        - name: nginx-logs
+          mountPath: /var/log/ondemand-nginx/
+        - name: apache-logs
+          mountPath: /var/log/httpd24
+        - name: slurmctld-config
+          mountPath: /etc/slurm/
+        - name: munge-key
+          mountPath: "/mnt/munge"
+          readOnly: true
+      volumes:
+      - name: slurmctld-config
+        configMap:
+          name: slurmctld-config
+          items:
+          - key: slurm.conf
+            path: slurm.conf
+          #- key: job_submit.lua
+          #  path: job_submit.lua
+          #- key: slac.conf
+          #  path: slac.conf
+          #- key: gres.conf
+          #  path: gres.conf
+          #- key: cgroup.conf
+          #  path: cgroup.conf
+      - name: munge-key
+        secret:
+          secretName: munge
+          defaultMode: 256
+      - name: homes
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/
+          type: Directory
+      - name: slac-ood-jupyter
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-jupyter/
+          type: Directory
+      - name: slac-ood-desktop
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-desktop/
+          type: Directory
+      - name: slac-ood-cryosparc
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-cryosparc/
+          type: Directory
+      - name: nginx-logs
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/ondemand-nginx
+      - name: dashboard-logs
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/dashboard
+      - name: apache-logs
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/httpd
+

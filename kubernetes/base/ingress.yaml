@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ondemand
+  namespace: ondemand-dev
+  #annotations:
+  #  cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+  - host: ondemand-dev.slac.stanford.edu
+    http:
+      paths:
+      - backend:
+          serviceName: ondemand
+          servicePort: 80
+        path: /
+  #tls:
+  #- hosts:
+  #  - ondemand-dev.slac.stanford.edu
+  #  secretName: tls-ondemand

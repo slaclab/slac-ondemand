@@ -1,0 +1,21 @@
+v2:
+  metadata:
+    title: "SDF"
+  login:
+    host: "centos7.slac.stanford.edu"
+  job:
+    adapter: "slurm"
+    cluster: "slac"
+    bin: "/usr/bin"
+    conf: "/etc/slurm/slurm.conf"
+    bin_overrides:
+      sbatch: "/usr/bin/sbatch"
+      squeue: "/usr/bin/squeue"
+      scontrol: "/usr/bin/scontrol"
+      scancel: "/usr/bin/scancel"
+  batch_connect:
+    basic:
+      script_wrapper: |
+        module purge
+        %s
+
