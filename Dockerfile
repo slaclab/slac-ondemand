@@ -12,59 +12,46 @@ RUN groupadd -g $MUNGEUSER munge \
     && groupadd -g $SLURMGROUP slurm \
     && useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm 
 
-RUN yum makecache fast \
+RUN set -xe \
+    && yum makecache fast \
     && yum -y update \
     && yum -y install epel-release centos-release-scl wget \
     && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
-    && yum install -y \
-      munge \
-      net-tools openssh-server openssh-clients singularity \
-      lsof sudo httpd24-mod_ssl httpd24-mod_ldap \
-      python-setuptools sssd nss-pam-ldapd \
-        autoconf \
-        bzip2 \
-        bzip2-devel \
-        file \
-        gcc \
-        gcc-c++ \
-        gdbm-devel \
-        git \
-        glibc-devel \
-        gmp-devel \
-        make \
+    && buildDeps="\
+        gdbm-devel glibc-devel gmp-devel \
         mariadb-devel \
         munge-devel \
-        ncurses-devel \
+        ncurses-devel readline-devel \
         openssl-devel \
+        sqlite-devel \
+        tcl-devel tix-devel tk-devel \
+        zlib-devel bzip2-devel \
+        pam-devel numactl-devel hwloc-devel lua-devel \
+        readline-devel rrdtool-devel ncurses-devel mysql-devel libssh2-devel gtk2-devel" \
+    && yum install -y \
+        $buildDeps \
+        munge \
+        net-tools openssh-server openssh-clients \
+        lsof sudo httpd24-mod_ssl httpd24-mod_ldap \
+        python-setuptools sssd nss-pam-ldapd \
+        bzip2 \
+        file \
+        autoconf make gcc gcc-c++ \
+        git \
         openssl-libs \
         pkconfig \
         psmisc \
-        readline-devel \
-        sqlite-devel \
-        tcl-devel \
-        tix-devel \
         tk \
-        tk-devel \
-        zlib-devel \
-        pam-devel numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad rpm-build mysql-devel rpm-build gcc  libssh2-devel  gtk2-devel  libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
-        yum -y install turbovnc \
-    && yum clean all \
-    && rm -rf /var/cache/yum \
-    && easy_install supervisor
-
-RUN set -ex \
+        numactl hwloc lua man2html libibmad libibumad rpm-build rpm-build gcc libibmad libibumad perl-Switch perl-ExtUtils-MakeMaker \
+    && yum -y install turbovnc \
     && git clone https://github.com/SchedMD/slurm.git \
     && pushd slurm \
     && git checkout tags/$SLURM_TAG \
     && ./configure --enable-debug --prefix=/usr \
-       --sysconfdir=/etc/slurm --with-mysql_config=/usr/bin \
-       --libdir=/usr/lib64 \
+         --sysconfdir=/etc/slurm --with-mysql_config=/usr/bin \
+         --libdir=/usr/lib64 \
     && make install \
-    && install -D -m644 etc/cgroup.conf.example /etc/slurm/cgroup.conf.example \
-    && install -D -m644 etc/slurm.conf.example /etc/slurm/slurm.conf.example \
-    && install -D -m644 etc/slurmdbd.conf.example /etc/slurm/slurmdbd.conf.example \
-    && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
     && popd \
     && rm -rf slurm \
     && mkdir /etc/sysconfig/slurm \
@@ -76,7 +63,11 @@ RUN set -ex \
         /var/run/slurmd \
         /var/lib/slurmd \
         /var/log/slurm \
-    && /sbin/create-munge-key
+    && /sbin/create-munge-key \
+    && yum remove -y $buildDeps \
+    && yum clean all \
+    && rm -rf /var/cache/yum \
+    && easy_install supervisor
 
 # setup sssd
 COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
