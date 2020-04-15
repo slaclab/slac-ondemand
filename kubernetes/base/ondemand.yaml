@@ -16,7 +16,7 @@ spec:
         storage/staas: 'true'
       containers:
       - name: ondemand
-        image: slaclab/slac-ondemand:20200414.0
+        image: slaclab/slac-ondemand:20200415.0
         imagePullPolicy: Always
         env:
         - name: OOD_SERVERNAME
@@ -50,14 +50,6 @@ spec:
           items:
           - key: slurm.conf
             path: slurm.conf
-          #- key: job_submit.lua
-          #  path: job_submit.lua
-          #- key: slac.conf
-          #  path: slac.conf
-          #- key: gres.conf
-          #  path: gres.conf
-          #- key: cgroup.conf
-          #  path: cgroup.conf
       - name: munge-key
         secret:
           secretName: munge
@@ -72,8 +64,8 @@ spec:
           type: Directory
       - name: slac-ood-desktop
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-desktop/
-          type: Directory
+         path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-desktop/
+         type: Directory
       - name: slac-ood-cryosparc
         hostPath:
           path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-cryosparc/
