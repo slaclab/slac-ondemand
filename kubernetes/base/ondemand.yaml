@@ -14,34 +14,49 @@ spec:
     spec:
       nodeSelector:
         storage/staas: 'true'
+        network: 'public'
       containers:
       - name: ondemand
-        image: slaclab/slac-ondemand:20200415.0
+        image: slaclab/slac-ondemand:20200415.1
         imagePullPolicy: Always
         env:
         - name: OOD_SERVERNAME
           value: ondemand-dev.slac.stanford.edu
         - name: OOD_DEFAULT_SSHHOST
           value: centos7.slac.stanford.edu
+        - name: OOD_AUTH_METHOD
+          value: htpasswd
         volumeMounts:
         - name: homes
           mountPath: /u/sf/
-        - name: slac-ood-jupyter
-          mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
-        - name: slac-ood-desktop
-          mountPath: /var/www/ood/apps/sys/bc_desktop
-        - name: slac-ood-cryosparc
-          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
-        - name: dashboard-logs
-          mountPath: /var/www/ood/apps/sys/dashboard/log
-        - name: nginx-logs
-          mountPath: /var/log/ondemand-nginx/
-        - name: apache-logs
-          mountPath: /var/log/httpd24
+        #- name: slac-ood-jupyter
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
+        #- name: slac-ood-desktop
+        #  mountPath: /var/www/ood/apps/sys/bc_desktop
+        #- name: slac-ood-cryosparc
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        #- name: dashboard-logs
+        #  mountPath: /var/www/ood/apps/sys/dashboard/log
+        #- name: activejobs-logs
+        #  mountPath: /var/www/ood/apps/sys/activejobs/log
+        #- name: nginx-logs
+        #  mountPath: /var/log/ondemand-nginx/
+        #- name: apache-logs
+        #  mountPath: /var/log/httpd24
         - name: slurmctld-config
           mountPath: /etc/slurm/
+          readOnly: true
         - name: munge-key
           mountPath: "/mnt/munge"
+          readOnly: true
+        - name: ood-portal-config
+          mountPath: /etc/ood/config/portal/
+          readOnly: true
+        - name: ood-clusterd-config
+          mountPath: /etc/ood/config/clusters.d/
+          readOnly: true
+        - name: ood-htpasswd
+          mountPath: /etc/ood/config/htpasswd/
           readOnly: true
       volumes:
       - name: slurmctld-config
@@ -58,25 +73,46 @@ spec:
         hostPath:
           path: /gpfs/slac/staas/fs1/g/jupyter/
           type: Directory
-      - name: slac-ood-jupyter
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-jupyter/
-          type: Directory
-      - name: slac-ood-desktop
-        hostPath:
-         path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-desktop/
-         type: Directory
-      - name: slac-ood-cryosparc
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-cryosparc/
-          type: Directory
-      - name: nginx-logs
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/ondemand-nginx
-      - name: dashboard-logs
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/dashboard
-      - name: apache-logs
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/httpd
-
+      - name: ood-portal-config
+        configMap:
+          name: ood-config
+          items:
+          - key: ood_portal.yml
+            path: ood_portal.yml
+      - name: ood-clusterd-config
+        configMap:
+          name: ood-config
+          items:
+          - key: sdf_cluster.yml
+            path: sdf_cluster.yml
+      - name: ood-htpasswd
+        secret:
+          secretName: auth
+          defaultMode: 256
+          items:
+          - key: htpasswd
+            path: .htpasswd
+      #- name: slac-ood-jupyter
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-jupyter/
+      #    type: Directory
+      #- name: slac-ood-desktop
+      #  hostPath:
+      #   path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-desktop/
+      #   type: Directory
+      #- name: slac-ood-cryosparc
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/apps/sys/slac-ood-cryosparc/
+      #    type: Directory
+      #- name: nginx-logs
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/ondemand-nginx
+      #- name: dashboard-logs
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/dashboard
+      #- name: activejobs-logs
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/activejobs
+      #- name: apache-logs
+      #  hostPath:
+      #    path: /gpfs/slac/staas/fs1/g/jupyter/ood/logs/httpd

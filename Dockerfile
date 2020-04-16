@@ -66,19 +66,22 @@ RUN set -xe \
     && /sbin/create-munge-key \
     && yum remove -y $buildDeps \
     && yum clean all \
-    && rm -rf /var/cache/yum \
     && easy_install supervisor
+#    && rm -rf /var/cache/yum
 
 # setup sssd
 COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
 COPY sssd/sssd.conf /etc/sssd/sssd.conf
 RUN chmod 600 /etc/sssd/sssd.conf
 
-#RUN yum search ondemand
-RUN yum install -y https://yum.osc.edu/ondemand/1.6/ondemand-release-web-1.6-4.noarch.rpm && \
-    yum install --nogpgcheck -y ondemand && \
-    mkdir -p /etc/ood/config/clusters.d && \
-    mkdir -p /etc/ood/config/apps/shell
+# oidc
+# create a symlink for the ood config so that we may use kubernetes for it
+RUN yum install -y https://yum.osc.edu/ondemand/1.6/ondemand-release-web-1.6-4.noarch.rpm \
+    && yum install --nogpgcheck -y ondemand httpd24-mod_auth_openidc \
+    && mkdir -p /etc/ood/config/clusters.d \
+    && mkdir -p /etc/ood/config/portal && ln -sf /etc/ood/config/portal/ood_portal.yml /etc/ood/config/ood_portal.yml \
+    && mkdir -p /etc/ood/config/htpasswd/ \
+    && mkdir -p /etc/ood/config/apps/shell
 
 # envs
 ENV MUNGE_ARGS=''
@@ -91,9 +94,10 @@ ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tin
 RUN chmod +x /usr/sbin/tini
 
 # copy local confs
-COPY config/ood_portal.yml /etc/ood/config/ood_portal.yml
-COPY config/apps/bc_desktop/slac_cluster.yml /etc/ood/config/apps/bc_desktop/slac_cluster.yml
-COPY etc/clusters.d/slac_cluster.yml /etc/ood/config/clusters.d/
+#COPY config/ood_portal.yml /etc/ood/config/ood_portal.yml
+#COPY config/apps/bc_desktop/slac_cluster.yml /etc/ood/config/apps/bc_desktop/slac_cluster.yml
+#COPY etc/clusters.d/slac_cluster.yml /etc/ood/config/clusters.d/
+#COPY config/auth_openidc.conf /opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
 
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 

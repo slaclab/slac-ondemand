@@ -168,7 +168,7 @@ auth:
 #     host_regex: '[\w.-]+\.example\.com'
 # Default: '[^/]+' (allow reverse proxying to all hosts, this allows external
 # hosts as well)
-host_regex: '\[\w.-]+.slac.stanford.edu'
+host_regex: '[\w.-]+\.slac\.stanford\.edu'
 
 # Sub-uri used to reverse proxy to backend web server running on node that
 # knows the full URI path

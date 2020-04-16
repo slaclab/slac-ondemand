@@ -7,10 +7,16 @@ bases:
 resources:
 - ns.yaml
 
+patchesStrategicMerge:
+- ondemand-patch.yaml
+
 secretGenerator:
 - name: munge
   files:
   - etc/munge.key
+- name: auth
+  files:
+  - etc/htpasswd
 
 configMapGenerator:
 - name: slurmctld-config
@@ -21,3 +27,7 @@ configMapGenerator:
 #  - etc/gres.conf
 #  - etc/cgroup.conf
 #  - etc/cgroup_allowed_devices_file.conf
+- name: ood-config
+  files:
+  - etc/ood_portal.yml
+  - etc/sdf_cluster.yml
