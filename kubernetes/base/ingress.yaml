@@ -3,7 +3,10 @@ kind: Ingress
 metadata:
   name: ondemand
   namespace: ondemand-dev
-  #annotations:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
   #  cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
@@ -12,7 +15,8 @@ spec:
       paths:
       - backend:
           serviceName: ondemand
-          servicePort: 80
+          servicePort: 443
+          #servicePort: 80
         path: /
   #tls:
   #- hosts:

@@ -34,6 +34,10 @@ servername: ondemand-dev.slac.stanford.edu
 #       - 'SSLCertificateKeyFile "/etc/pki/tls/private/www.example.com.key"'
 # Default: null (no SSL support)
 #ssl: null
+ssl:
+- 'SSLCertificateFile "/etc/pki/tls/thisserver/ondemand-dev.crt"'
+- 'SSLCertificateKeyFile "/etc/pki/tls/thisserver/ondemand-dev.key"'
+- 'SSLCertificateChainFile "/etc/pki/tls/thisserver/ondemand-dev.intermediates"'
 
 # Root directory of log files (can be relative ServerRoot)
 # Example:
@@ -90,11 +94,12 @@ servername: ondemand-dev.slac.stanford.edu
 # NB: Be sure the appropriate Apache module is installed for this
 # Default: (see below, uses basic auth with an htpasswd file)
 auth:
-  - 'AuthType Basic'
-  - 'AuthName "private"'
-  - 'AuthUserFile "/opt/rh/httpd24/root/etc/httpd/.htpasswd"'
-  - 'RequestHeader unset Authorization'
-  - 'Require valid-user'
+- 'Require valid-user'
+#  - 'AuthType Basic'
+#  - 'AuthName "private"'
+#  - 'AuthUserFile "/opt/rh/httpd24/root/etc/httpd/.htpasswd"'
+#  - 'RequestHeader unset Authorization'
+#  - 'Require valid-user'
 # ldap!
 #- "AuthType Basic"
 #- "AuthName \"private\""

@@ -17,16 +17,16 @@ secretGenerator:
 - name: auth
   files:
   - etc/htpasswd
+- name: certs
+  files:
+  - etc/ondemand-dev.key
+  - etc/ondemand-dev.crt
+  - etc/ondemand-dev.intermediates
 
 configMapGenerator:
 - name: slurmctld-config
   files:
   - etc/slurm.conf
-#  - etc/job_submit.lua
-#  - etc/slac.conf
-#  - etc/gres.conf
-#  - etc/cgroup.conf
-#  - etc/cgroup_allowed_devices_file.conf
 - name: ood-config
   files:
   - etc/ood_portal.yml
