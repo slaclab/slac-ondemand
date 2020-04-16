@@ -76,7 +76,7 @@ RUN chmod 600 /etc/sssd/sssd.conf
 
 # oidc
 # create a symlink for the ood config so that we may use kubernetes for it
-RUN yum install -y https://yum.osc.edu/ondemand/1.6/ondemand-release-web-1.6-4.noarch.rpm \
+RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-latest-1-6.noarch.rpm \
     && yum install --nogpgcheck -y ondemand httpd24-mod_auth_openidc \
     && mkdir -p /etc/ood/config/clusters.d \
     && mkdir -p /etc/ood/config/portal && ln -sf /etc/ood/config/portal/ood_portal.yml /etc/ood/config/ood_portal.yml \
