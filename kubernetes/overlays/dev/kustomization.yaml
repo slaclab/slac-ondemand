@@ -31,3 +31,4 @@ configMapGenerator:
   files:
   - etc/ood_portal.yml
   - etc/sdf_cluster.yml
+  - etc/sdf_desktop.yml
