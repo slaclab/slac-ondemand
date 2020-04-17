@@ -3,6 +3,7 @@
 # update config
 OOD_CONF=/etc/ood/config/ood_portal.yml
 sed -i "s/^servername: .*$/servername: ${OOD_SERVERNAME}/" ${OOD_CONF}
+sed -i "s/^host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
 
 # modify logs to stderr/out
 export OOD_PORTAL_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
