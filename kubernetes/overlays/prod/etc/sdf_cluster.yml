@@ -1,0 +1,45 @@
+v2:
+  metadata:
+    title: "SDF"
+  login:
+    host: "centos7.slac.stanford.edu"
+  job:
+    adapter: "slurm"
+    #cluster: "slac"
+    bin: "/usr/bin"
+    conf: "/etc/slurm/slurm.conf"
+    bin_overrides:
+      sbatch: "/usr/bin/sbatch"
+      squeue: "/usr/bin/squeue"
+      scontrol: "/usr/bin/scontrol"
+      scancel: "/usr/bin/scancel"
+  batch_connect:
+    basic:
+      script_wrapper: |
+        source /etc/profile.d/modules.sh
+        export MODULEPATH=/usr/share/Modules/modulefiles:/opt/modulefiles:/afs/slac/package/singularity/modulefiles
+        export XDG_RUNTIME_DIR=$(mktemp -d)
+        module purge
+        %s
+      set_host: "host=$(hostname -s)"
+    vnc:
+      script_wrapper: |
+        source /etc/profile.d/modules.sh
+        export MODULEPATH=/usr/share/Modules/modulefiles:/opt/modulefiles:/afs/slac/package/singularity/modulefiles
+        export XDG_RUNTIME_DIR=$(mktemp -d)
+
+        module purge
+        module load xfce
+
+        export WEBSOCKIFY_CMD="websockify"
+        export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR) 
+        singularity instance start -B /gpfs -B /afs --nv  /afs/slac/package/singularity/images/xfce/ubuntu18.04/xfce@ubuntu18.04.sif ${SINGULARITY_INSTANCE}
+
+        # use the kill within the container
+        kill(){ /afs/slac/package/singularity/images/xfce/ubuntu18.04/bin/kill "$@"; }
+        type kill
+        #alias pkill="singularity exec instance://${SINGULARITY_INSTANCE} pkill "
+
+        %s
+      set_host: "host=$(hostname -s)"
+
