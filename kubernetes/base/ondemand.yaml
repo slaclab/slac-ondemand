@@ -19,6 +19,12 @@ spec:
       - name: ondemand
         image: slaclab/slac-ondemand:20200417.0
         imagePullPolicy: Always
+        #livenessProbe:
+        #  httpGet:
+        #    path: /
+        #    port: 443
+        #  initialDelaySeconds: 5
+        #  periodSeconds: 10
         env:
         - name: OOD_SERVERNAME
           value: ondemand-dev.slac.stanford.edu
