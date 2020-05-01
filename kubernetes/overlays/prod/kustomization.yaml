@@ -1,0 +1,35 @@
+
+namespace: ondemand-prod
+
+bases:
+- ../../base
+
+resources:
+- ns.yaml
+
+patchesStrategicMerge:
+- ondemand-patch.yaml
+- ingress-patch.yaml
+
+secretGenerator:
+- name: munge
+  files:
+  - etc/munge.key
+- name: auth
+  files:
+  - etc/htpasswd
+- name: certs
+  files:
+  - etc/ondemand-dev.key
+  - etc/ondemand-dev.crt
+  - etc/ondemand-dev.intermediates
+
+configMapGenerator:
+- name: slurmctld-config
+  files:
+  - etc/slurm.conf
+- name: ood-config
+  files:
+  - etc/ood_portal.yml
+  - etc/sdf_cluster.yml
+  - etc/sdf_desktop.yml
