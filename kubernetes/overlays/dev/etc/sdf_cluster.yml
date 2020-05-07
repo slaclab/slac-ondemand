@@ -24,21 +24,31 @@ v2:
       set_host: "host=$(hostname -s)"
     vnc:
       script_wrapper: |
-        source /etc/profile.d/modules.sh
-        export MODULEPATH=/usr/share/Modules/modulefiles:/opt/modulefiles:/afs/slac/package/singularity/modulefiles
+        export WEBSOCKIFY_CMD="websockify"
         export XDG_RUNTIME_DIR=$(mktemp -d)
 
-        module purge
-        module load xfce
-
-        export WEBSOCKIFY_CMD="websockify"
+        # start the container instance
+        export SINGULARITY_IMAGE=/afs/slac/package/singularity/images/xfce/ubuntu18.04/xfce@ubuntu18.04.sif
         export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR) 
-        singularity instance start -B /gpfs -B /afs --nv  /afs/slac/package/singularity/images/xfce/ubuntu18.04/xfce@ubuntu18.04.sif ${SINGULARITY_INSTANCE}
+        singularity instance start -B /gpfs,/nfs,/afs,/scratch --nv ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
 
-        # use the kill within the container
-        kill(){ /afs/slac/package/singularity/images/xfce/ubuntu18.04/bin/kill "$@"; }
-        type kill
-        #alias pkill="singularity exec instance://${SINGULARITY_INSTANCE} pkill "
+        # alias doesn't work for some reason...
+        function kill(){ singularity exec instance://${SINGULARITY_INSTANCE} kill $@; }
+        export -f kill
+        function pkill(){ singularity exec instance://${SINGULARITY_INSTANCE} pkill $@; }
+        export -f pkill
+        function pgrep(){ singularity exec instance://${SINGULARITY_INSTANCE} pgrep $@; }
+        export -f pgrep
+        function vncserver(){ singularity exec instance://${SINGULARITY_INSTANCE} vncserver $@; }
+        export -f vncserver
+        function vncpasswd(){ singularity exec instance://${SINGULARITY_INSTANCE} vncpasswd $@; }
+        export -f vncpasswd
+        function xfconf-query(){ singularity exec instance://${SINGULARITY_INSTANCE} xfconf-query $@; }
+        export -f xfconf-query
+        function xfce4-session(){ singularity exec instance://${SINGULARITY_INSTANCE} xfce4-session $@; }
+        export -f xfce4-session
+        function websockify(){ singularity exec instance://${SINGULARITY_INSTANCE} websockify $@; }
+        export -f websockify
 
         %s
       set_host: "host=$(hostname -s)"
