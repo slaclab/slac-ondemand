@@ -72,7 +72,10 @@ env
 echo '==='
 
 # set the default ssh host
-echo "DEFAULT_SSHHOST=${OOD_DEFAULT_SSHHOST:-localhost}" > /etc/ood/config/apps/shell/env
+cat <<EOF > /etc/ood/config/apps/shell/env
+DEFAULT_SSHHOST=${OOD_DEFAULT_SSHHOST:-localhost}
+OOD_SHELL_ORIGIN_CHECK='off'
+EOF
 
 # start the webserver
 if [ "${DEBUG}" == "1" ]; then
