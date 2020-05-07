@@ -1,4 +1,4 @@
-TAG=20200417.0
+TAG=20200506.0
 
 docker:
 	sudo docker build . -t slaclab/slac-ondemand:${TAG}
