@@ -33,3 +33,7 @@ configMapGenerator:
   - etc/ood_portal.yml
   - etc/sdf_cluster.yml
   - etc/sdf_desktop.yml
+
+images:
+- name: slaclab/slac-ondemand
+  newTag: "20200506.0"
