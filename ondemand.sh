@@ -44,7 +44,10 @@ case "$OOD_AUTH_METHOD" in
     chmod ugo+r $OOD_AUTH_PASSWD
   ;;
   ldap)
-    sed -i "s|^auth:|auth:\n- 'AuthType Basic'\n- AuthName 'private'\n- 'AuthBasicProvider ldap'\n- 'RequestHeader unset Authorization'\n- 'AuthLDAPURL ${OOD_AUTH_LDAPURL}'|" ${OOD_CONF}
+    [[ ! -z "$OOD_AUTH_LDAPBINDDN" && ! -z $OOD_AUTH_LDAPBINDPASSWORD ]] && sed -i  "s|^auth:|auth:\n- AuthLDAPBindDN '${OOD_AUTH_LDAPBINDDN}'\n- AuthLDAPBindPassword \'${OOD_AUTH_LDAPBINDPASSWORD%$'\n'}\'|" ${OOD_CONF}
+    sed -i "s|^auth:|auth:\n- AuthType 'Basic'\n- AuthName 'private'\n- AuthBasicProvider 'ldap'\n- 'RequestHeader unset Authorization'\n- AuthLDAPURL '${OOD_AUTH_LDAPURL}'|" ${OOD_CONF}
+    sed -i "s|^auth:|auth:\n- AuthLDAPGroupAttribute '${OOD_AUTH_LDAPGROUPATTR:-gidNumber}'\n- AuthLDAPGroupAttributeIsDN off|"  ${OOD_CONF}
+    
     #rm -f ${OIDC_CONFIG}
   ;;
 esac

@@ -2,17 +2,17 @@ v2:
   metadata:
     title: "SDF"
   login:
-    host: "centos7.slac.stanford.edu"
+    host: "sdf-login01.slac.stanford.edu"
   job:
     adapter: "slurm"
     #cluster: "slac"
-    bin: "/usr/bin"
-    conf: "/etc/slurm/slurm.conf"
+    #bin: "/opt/slurm/bin/"
+    conf: "/run/slurm/conf/slurm.conf"
     bin_overrides:
-      sbatch: "/usr/bin/sbatch"
-      squeue: "/usr/bin/squeue"
-      scontrol: "/usr/bin/scontrol"
-      scancel: "/usr/bin/scancel"
+      sbatch: "/opt/slurm/bin/sbatch"
+      squeue: "/opt/slurm/bin/squeue"
+      scontrol: "/opt/slurm/bin/scontrol"
+      scancel: "/opt/slurm/bin/scancel"
   batch_connect:
     basic:
       script_wrapper: |

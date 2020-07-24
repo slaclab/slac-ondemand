@@ -12,9 +12,6 @@ spec:
       labels:
         app: ondemand
     spec:
-      nodeSelector:
-        storage/staas: 'true'
-        network: 'public'
       containers:
       - name: ondemand
         image: slaclab/slac-ondemand:20200417.0
@@ -36,12 +33,14 @@ spec:
         #- name: OOD_AUTH_LDAPURL
         #  value: ldaps://ldap601.slac.stanford.edu:636/ou=Accounts,dc=slac,dc=stanford,dc=edu 
         volumeMounts:
-        - name: slurmctld-config
-          mountPath: /etc/slurm/
+        - name: slurm-config
+          mountPath: /run/slurm/conf/
           readOnly: true
-        - name: munge-key
-          mountPath: "/mnt/munge"
-          readOnly: true
+        - name: munge-socket
+          mountPath: /var/run/munge/
+        #- name: munge-key
+        #  mountPath: "/mnt/munge"
+        #  readOnly: true
         - name: ood-portal-config
           mountPath: /etc/ood/config/portal/
           readOnly: true
@@ -55,16 +54,16 @@ spec:
           mountPath: /etc/pki/tls/thisserver/
           readOnly: true
       volumes:
-      - name: slurmctld-config
-        configMap:
-          name: slurmctld-config
-          items:
-          - key: slurm.conf
-            path: slurm.conf
-      - name: munge-key
-        secret:
-          secretName: munge
-          defaultMode: 256
+      #- name: slurm-config
+      #  configMap:
+      #    name: slurm
+      #    items:
+      #    - key: slurm.conf
+      #      path: slurm.conf
+      #- name: munge-key
+      #  secret:
+      #    secretName: munge
+      #    defaultMode: 256
       - name: ood-portal-config
         configMap:
           name: ood-config

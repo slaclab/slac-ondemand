@@ -11,22 +11,24 @@ patchesStrategicMerge:
 - ondemand-patch.yaml
 
 secretGenerator:
-- name: munge
-  files:
-  - etc/munge.key
+#- name: munge
+#  files:
+#  - etc/munge.key
 - name: auth
   files:
   - etc/htpasswd
+  - etc/ldap.password
 - name: certs
   files:
   - etc/ondemand-dev.key
   - etc/ondemand-dev.crt
   - etc/ondemand-dev.intermediates
 
+
 configMapGenerator:
-- name: slurmctld-config
-  files:
-  - etc/slurm.conf
+#- name: slurm
+#  files:
+#  - etc/slurm.conf
 - name: ood-config
   files:
   - etc/ood_portal.yml
@@ -35,4 +37,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20200506.0"
+  newTag: "20200724.0"
