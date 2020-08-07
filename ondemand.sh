@@ -13,6 +13,7 @@ sed -i 's:CustomLog .*:CustomLog /dev/stdout common:g' ${OOD_PORTAL_CONF}
 # setup auth
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
+OIDC_METADATA_DIR=/var/cache/httpd/mod_auth_openidc/metadata
 case "$OOD_AUTH_METHOD" in
   oidc)
 
@@ -22,19 +23,59 @@ case "$OOD_AUTH_METHOD" in
     sed -i "s|^\#logout_redirect:.*|logout_redirect: '/${OIDC_REDIRECT:-oidc}?logout=https%3A%2F%2F${OOD_SERVERNAME}'|" ${OOD_CONF}
 
     # modify oidc conf
-    sed -i "s|^\#OIDCProviderMetadataURL.*|OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL:-https://cilogon.org/.well-known/openid-configuration}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCClientSecret.*|OIDCClientSecret  \"${OIDC_CLIENT_SECRET}\"|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCRedirectURI.*|OIDCRedirectURI  \"https://${OOD_SERVERNAME}/${OIDC_REDIRECT:-oidc}\"|" $OIDC_CONFIG 
-    sed -i "s|^\#OIDCClientID.*|OIDCClientID  \"${OIDC_CLIENT_ID}\"|" $OIDC_CONFIG 
-    sed -i "s|^\#OIDCCryptoPassphrase.*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCSessionInactivityTimeout.*|OIDCSessionInactivityTimeout 28800|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCSessionMaxDuration.*|OIDCSessionMaxDuration 28800|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCRemoteUserClaim.*|OIDCRemoteUserClaim ${OIDC_REMOTE_USER_CLAIM:-'preferred_username'}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCPassClaimsAs.*|OIDCPassClaimsAs environment|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCStripCookies.*|OIDCStripCookies mod_auth_openidc_session mod_auth_openidc_session_chunks mod_auth_openidc_session_0 mod_auth_openidc_session_1|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderMetadataURL .*|OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL:-https://cilogon.org/.well-known/openid-configuration}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCRedirectURI .*|OIDCRedirectURI  \"https://${OOD_SERVERNAME}/${OIDC_REDIRECT:-oidc}\"|" $OIDC_CONFIG 
+    sed -i "s|^\#OIDCClientID .*|OIDCClientID  \"${OIDC_CLIENT_ID//[$'\t\r\n']}\"|" $OIDC_CONFIG 
+    sed -i "s|^\#OIDCClientSecret .*|OIDCClientSecret  \"${OIDC_CLIENT_SECRET//[$'\t\r\n']}\"|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCCryptoPassphrase .*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionInactivityTimeout .*|OIDCSessionInactivityTimeout 28800|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionMaxDuration .*|OIDCSessionMaxDuration 28800|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCRemoteUserClaim .*|OIDCRemoteUserClaim ${OIDC_REMOTE_USER_CLAIM:-'preferred_username'}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCPassClaimsAs .*|OIDCPassClaimsAs environment|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCStripCookies .*|OIDCStripCookies mod_auth_openidc_session mod_auth_openidc_session_chunks mod_auth_openidc_session_0 mod_auth_openidc_session_1|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderIssuer .*|OIDCProviderIssuer ${OIDC_PROVIDER_ISSUER:-https://cilogon.org}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderAuthorizationEndpoint .*|OIDCProviderAuthorizationEndpoint ${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT:-https://cilogon.org/authorize}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderTokenEndpoint .*|OIDCProviderTokenEndpoint ${OIDC_PROVIDER_TOKEN_ENDPOINT:-https://cilogon.org/oauth2/token}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderTokenEndpointAuth .*|OIDCProviderTokenEndpointAuth ${OIDC_PROVIDER_TOKEN_ENDPOINT_AUTH:-client_secret_post}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderUserInfoEndpoint .*|OIDCProviderUserInfoEndpoint ${OIDC_PROVIDER_USER_INFO_ENDPOINT:-https://cilogon.org/oauth2/userinfo}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCScope .*|OIDCScope \"${OIDC_SCOPE:-openid email profile org.cilogon.userinfo}\"|" $OIDC_CONFIG
+    
+    
+    #sed -i "s|^\#OIDCMetadataDir.*|OIDCMetadataDir ${OIDC_METADATA_DIR}|" $OIDC_CONFIG
     echo "=== ${OIDC_CONFIG} ==="
     cat ${OIDC_CONFIG} | grep -vE '^\s*\#' | grep -vE '^$'
     echo '==='
+
+    mkdir -p ${OIDC_METADATA_DIR}
+    chmod go-rwx ${OIDC_METADATA_DIR}
+    cat <<EOF > ${OIDC_METADATA_DIR}/cilogon.org.provider
+{
+  "issuer": "https://cilogon.org",
+  "authorization_endpoint": "https://cilogon.org/authorize",
+  "token_endpoint": "https://cilogon.org/oauth2/token",
+  "userinfo_endpoint": "https://cilogon.org/oauth2/userinfo",
+  "response_types_supported": [
+    "code"
+  ],
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_post"
+  ]
+}
+EOF
+    cat <<EOF > ${OIDC_METADATA_DIR}/cilogon.org.client
+{
+  "client_id": "${OIDC_CLIENT_ID}",
+  "client_secret": "${OIDC_CLIENT_SECRET}"
+}
+EOF
+    cat <<EOF > ${OIDC_METADATA_DIR}/cilogon.org.conf
+{
+  "scope": "openid email profile org.cilogon.userinfo",
+  "response_type": "code",
+  "auth_request_params": "skin=default"
+}
+EOF
+
   ;;
   htpasswd)
     #rm -f ${OIDC_CONFIG}
@@ -52,6 +93,10 @@ case "$OOD_AUTH_METHOD" in
   ;;
 esac
 
+# user mapping
+sed -i "s|^\#user_map_cmd: .*|user_map_cmd: ${OOD_USER_MAP_CMD:-/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=\'^(\w+)@slac.stanford.edu$\'} |"  ${OOD_CONF}
+
+
 # generate configs
 echo "=== $OOD_CONF ==="
 cat ${OOD_CONF} | grep -vE '^\s*\#' | grep -vE '^$'
@@ -61,6 +106,9 @@ echo "=== $OOD_PORTAL_CONF ==="
 cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
 echo '==='
 /opt/ood/ood-portal-generator/sbin/update_ood_portal -f
+
+# disable http2
+sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
 
 # start apache
 source /opt/rh/httpd24/enable || true

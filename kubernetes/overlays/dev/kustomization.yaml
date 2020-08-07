@@ -18,6 +18,8 @@ secretGenerator:
   files:
   - etc/htpasswd
   - etc/ldap.password
+  - etc/oidc_client_id
+  - etc/oidc_client_secret
 - name: certs
   files:
   - etc/ondemand-dev.key
@@ -37,4 +39,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20200724.0"
+  newTag: "20200806.0"
