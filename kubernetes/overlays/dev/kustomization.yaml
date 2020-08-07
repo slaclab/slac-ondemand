@@ -36,6 +36,9 @@ configMapGenerator:
   - etc/ood_portal.yml
   - etc/sdf_cluster.yml
   - etc/sdf_desktop.yml
+- name: pun-html
+  files:
+  - etc/missing_home_directory.html
 
 images:
 - name: slaclab/slac-ondemand

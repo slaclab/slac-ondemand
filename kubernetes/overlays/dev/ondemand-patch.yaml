@@ -79,6 +79,10 @@ spec:
           mountPath: /var/log/ondemand-nginx/
         - name: apache-logs
           mountPath: /var/log/httpd24
+        - name: slac-sdfdocs
+          mountPath: /var/www/ood/apps/sys/slac-sdfdocs
+        - name: pun-html
+          mountPath: /etc/ood/config/pun/html/
       volumes:
       - name: ood-clusterd-config
         configMap:
@@ -135,3 +139,9 @@ spec:
       - name: apache-logs
         hostPath:
           path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/logs/httpd
+      - name: slac-sdfdocs
+        hostPath:
+          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-sdfdocs/
+      - name: pun-html
+        configMap:
+          name: pun-html 
