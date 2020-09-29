@@ -5,6 +5,11 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector:
+        storage/staas: 'true'
+        storage/sdf: 'true'
+        network: 'public'
+        slurm: 'true'
       containers:
       - name: ondemand
         env:
@@ -13,36 +18,63 @@ spec:
         - name: OOD_HOST_REGEX
           value: '[\\w-]+\(\\.slac\\.stanford\\.edu\)?'
         - name: OOD_DEFAULT_SSHHOST
-          value: centos7.slac.stanford.edu
+          value: sdf-login.slac.stanford.edu
+        - name: OOD_USER_MAP_CMD
+          value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
         - name: OOD_AUTH_METHOD
-          value: ldap
-          #value: oidc
-        - name: OOD_AUTH_LDAPURL
-          value: ldaps://ldap602.slac.stanford.edu:636/ou=Accounts,dc=slac,dc=stanford,dc=edu
-        #- name: OIDC_PROVIDER_METADATA_URL
-        #  value: https://cilogon.org/.well-known/openid-configuration
-        #- name: OIDC_REMOTE_USER_CLAIM
-        #  value: email
-        #- name: OIDC_REDIRECT
-        #  value: oidc
-        #- name: DEBUG
-        #  value: "1"
+          #value: ldap
+          value: oidc
+        #- name: OOD_AUTH_LDAPURL
+        #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
+        #- name: OOD_AUTH_LDAPGROUPATTR
+        #  value: gidNumber
+        #- name: OOD_AUTH_LDAPBINDDN
+        #  value: CN=osmaint,OU=Service-Accounts,OU=SCS,DC=win,DC=slac,DC=stanford,DC=edu
+        #- name: OOD_AUTH_LDAPBINDPASSWORD
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: ldap.password
+        - name: OIDC_PROVIDER_METADATA_URL
+          value: https://cilogon.org/.well-known/openid-configuration
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_client_id
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_client_secret
+        - name: OIDC_REMOTE_USER_CLAIM
+          value: eppn
+        - name: OIDC_REDIRECT
+          value: oidc
+        - name: DEBUG
+          value: "1"
         volumeMounts:
-        - name: homes
-          mountPath: /u/
+        # general filesystems
         - name: gpfs-slac
           mountPath: /gpfs/slac/
+        - name: sdf
+          mountPath: /sdf/
+        # support infra sw
+        - name: slurm
+          mountPath: /opt/slurm/
+        # apps
         - name: slac-ood-jupyter
           mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
         - name: ood-desktop-config
           mountPath: /etc/ood/config/apps/bc_desktop/
           readOnly: true
-        - name: slac-ood-matlab
-          mountPath: /var/www/ood/apps/sys/slac-ood-matlab
         - name: slac-ood-desktop
           mountPath: /var/www/ood/apps/sys/bc_desktop
+        - name: slac-ood-matlab
+          mountPath: /var/www/ood/apps/sys/slac-ood-matlab
         - name: slac-ood-cryosparc
           mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
         - name: activejobs-logs
@@ -51,6 +83,15 @@ spec:
           mountPath: /var/log/ondemand-nginx/
         - name: apache-logs
           mountPath: /var/log/httpd24
+        # docs
+        - name: sdf-docs
+          mountPath: /var/www/ood/public/doc/
+        # customisation
+        - name: pun-html
+          mountPath: /etc/ood/config/pun/html/
+        - name: pun-html
+          mountPath: /etc/ood/config/apps/dashboard/env
+          subPath: pun.env
       volumes:
       - name: ood-clusterd-config
         configMap:
@@ -58,16 +99,27 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
-      - name: homes
-        hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/
-          type: Directory
+      # general filesystems
       - name: gpfs-slac
         hostPath:
           path: /gpfs/slac/
+      - name: sdf
+        hostPath:
+          path: /sdf/
+      # support infra sw
+      - name: munge-socket
+        hostPath:
+          path: /var/run/munge
+      - name: slurm
+        hostPath:
+          path: /opt/slurm
+      - name: slurm-config
+        hostPath:
+          path: /run/slurm/conf/
+      # ood apps
       - name: slac-ood-jupyter
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/apps/sys/slac-ood-jupyter/
+          path: /sdf/sw/ood/prod/apps/sys/slac-ood-jupyter/
           type: Directory
       - name: ood-desktop-config
         configMap:
@@ -77,25 +129,34 @@ spec:
             path: sdf.yml
       - name: slac-ood-desktop
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/apps/sys/slac-ood-desktop/
+          path: /sdf/sw/ood/prod/apps/sys/slac-ood-desktop/
           type: Directory
       - name: slac-ood-matlab
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/apps/sys/slac-ood-matlab/
+          path: /sdf/sw/ood/prod/apps/sys/slac-ood-matlab/
           type: Directory
       - name: slac-ood-cryosparc
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/apps/sys/slac-ood-cryosparc/
+          path: /sdf/sw/ood/prod/apps/sys/slac-ood-cryosparc/
           type: Directory
+      # logs
       - name: nginx-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/logs/ondemand-nginx
+          path: /sdf/sw/ood/prod/logs/ondemand-nginx
       - name: dashboard-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/logs/dashboard
+          path: /sdf/sw/ood/prod/logs/dashboard
       - name: activejobs-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/logs/activejobs
+          path: /sdf/sw/ood/prod/logs/activejobs
       - name: apache-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/prod/logs/httpd
+          path: /sdf/sw/ood/prod/logs/httpd
+      # docs
+      - name: sdf-docs
+        hostPath:
+          path: /sdf/sw/ood/prod/apps/sys/sdf-docs/
+      # customisation
+      - name: pun-html
+        configMap:
+          name: pun-html 
