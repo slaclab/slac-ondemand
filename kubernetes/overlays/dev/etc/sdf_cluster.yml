@@ -5,8 +5,6 @@ v2:
     host: "sdf-login01.slac.stanford.edu"
   job:
     adapter: "slurm"
-    #cluster: "slac"
-    #bin: "/opt/slurm/bin/"
     conf: "/run/slurm/conf/slurm.conf"
     bin_overrides:
       sbatch: "/opt/slurm/bin/sbatch"
@@ -17,7 +15,7 @@ v2:
     basic:
       script_wrapper: |
         source /etc/profile.d/modules.sh
-        export MODULEPATH=/usr/share/Modules/modulefiles:/opt/modulefiles:/afs/slac/package/singularity/modulefiles
+        export MODULEPATH=/usr/share/Modules/modulefiles:/sdf/sw/modulefiles:/sdf/group/cryoem/sw/modulefiles/
         export XDG_RUNTIME_DIR=$(mktemp -d)
         module purge
         %s
@@ -28,9 +26,12 @@ v2:
         export XDG_RUNTIME_DIR=$(mktemp -d)
 
         # start the container instance
-        export SINGULARITY_IMAGE=/afs/slac/package/singularity/images/xfce/ubuntu18.04/xfce@ubuntu18.04.sif
+        export SINGULARITY_IMAGE=${SINGULARITY_IMAGE:-/sdf/sw/images/xfce/ubuntu18.04/xfce@ubuntu18.04.sif}
         export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR) 
-        singularity instance start -B /gpfs,/nfs,/afs,/scratch --nv ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+
+        # start container
+        echo "Starting image ${SINGULARITY_IMAGE} as ${SINGULARITY_INSTANCE}..."
+        singularity instance start -B /sdf,/gpfs,/scratch,/lscratch --nv ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
 
         # alias doesn't work for some reason...
         function kill(){ singularity exec instance://${SINGULARITY_INSTANCE} kill $@; }
