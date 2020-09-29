@@ -6,34 +6,37 @@ bases:
 
 resources:
 - ns.yaml
+- ingress.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
-- ingress-patch.yaml
 
 secretGenerator:
-- name: munge
-  files:
-  - etc/munge.key
 - name: auth
   files:
   - etc/htpasswd
+  #- etc/ldap.password
+  - etc/oidc_client_id
+  - etc/oidc_client_secret
+# doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
   - etc/ondemand-dev.key
   - etc/ondemand-dev.crt
   - etc/ondemand-dev.intermediates
 
+
 configMapGenerator:
-- name: slurmctld-config
-  files:
-  - etc/slurm.conf
 - name: ood-config
   files:
   - etc/ood_portal.yml
   - etc/sdf_cluster.yml
   - etc/sdf_desktop.yml
+- name: pun-html
+  files:
+  - etc/pun.env
+  - etc/missing_home_directory.html
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20200506.0"
+  newTag: "20200810.0"
