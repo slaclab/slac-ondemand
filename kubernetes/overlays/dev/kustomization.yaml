@@ -6,14 +6,12 @@ bases:
 
 resources:
 - ns.yaml
+- ingress.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
 
 secretGenerator:
-#- name: munge
-#  files:
-#  - etc/munge.key
 - name: auth
   files:
   - etc/htpasswd
@@ -28,9 +26,6 @@ secretGenerator:
 
 
 configMapGenerator:
-#- name: slurm
-#  files:
-#  - etc/slurm.conf
 - name: ood-config
   files:
   - etc/ood_portal.yml
@@ -38,8 +33,9 @@ configMapGenerator:
   - etc/sdf_desktop.yml
 - name: pun-html
   files:
+  - etc/pun.env
   - etc/missing_home_directory.html
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20200806.0"
+  newTag: "20200810.0"
