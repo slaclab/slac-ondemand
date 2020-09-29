@@ -47,9 +47,9 @@ spec:
         - name: ood-clusterd-config
           mountPath: /etc/ood/config/clusters.d/
           readOnly: true
-        - name: ood-htpasswd
-          mountPath: /etc/ood/config/htpasswd/
-          readOnly: true
+        #- name: ood-htpasswd
+        #  mountPath: /etc/ood/config/htpasswd/
+        #  readOnly: true
         - name: ood-certs
           mountPath: /etc/pki/tls/thisserver/
           readOnly: true
@@ -76,13 +76,13 @@ spec:
       #    items:
       #    - key: sdf_cluster.yml
       #      path: sdf.yml
-      - name: ood-htpasswd
-        secret:
-          secretName: auth
-          defaultMode: 256
-          items:
-          - key: htpasswd
-            path: .htpasswd
+      #- name: ood-htpasswd
+      #  secret:
+      #    secretName: auth
+      #    defaultMode: 256
+      #    items:
+      #    - key: htpasswd
+      #      path: .htpasswd
       - name: ood-certs
         secret:
           secretName: certs
