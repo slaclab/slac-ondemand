@@ -51,15 +51,18 @@ spec:
           value: email
         - name: OIDC_REDIRECT
           value: oidc
-        #- name: DEBUG
-        #  value: "1"
+        - name: DEBUG
+          value: "1"
         volumeMounts:
+        # general filesystems
         - name: gpfs-slac
           mountPath: /gpfs/slac/
         - name: sdf
           mountPath: /sdf/
+        # support infra sw
         - name: slurm
           mountPath: /opt/slurm/
+        # apps
         - name: slac-ood-jupyter
           mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
         - name: ood-desktop-config
@@ -71,6 +74,7 @@ spec:
           mountPath: /var/www/ood/apps/sys/slac-ood-matlab
         - name: slac-ood-cryosparc
           mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
         - name: activejobs-logs
@@ -79,10 +83,15 @@ spec:
           mountPath: /var/log/ondemand-nginx/
         - name: apache-logs
           mountPath: /var/log/httpd24
-        - name: slac-sdfdocs
-          mountPath: /var/www/ood/apps/sys/slac-sdfdocs
+        # docs
+        - name: sdf-docs
+          mountPath: /var/www/ood/public/doc/
+        # customisation
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
+        - name: pun-html
+          mountPath: /etc/ood/config/apps/dashboard/env
+          subPath: pun.env
       volumes:
       - name: ood-clusterd-config
         configMap:
@@ -90,12 +99,14 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
+      # general filesystems
       - name: gpfs-slac
         hostPath:
           path: /gpfs/slac/
       - name: sdf
         hostPath:
           path: /sdf/
+      # support infra sw
       - name: munge-socket
         hostPath:
           path: /var/run/munge
@@ -105,9 +116,10 @@ spec:
       - name: slurm-config
         hostPath:
           path: /run/slurm/conf/
+      # ood apps
       - name: slac-ood-jupyter
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-ood-jupyter/
+          path: /sdf/sw/ood/dev/apps/sys/slac-ood-jupyter/
           type: Directory
       - name: ood-desktop-config
         configMap:
@@ -117,31 +129,34 @@ spec:
             path: sdf.yml
       - name: slac-ood-desktop
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-ood-desktop/
+          path: /sdf/sw/ood/dev/apps/sys/slac-ood-desktop/
           type: Directory
       - name: slac-ood-matlab
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-ood-matlab/
+          path: /sdf/sw/ood/dev/apps/sys/slac-ood-matlab/
           type: Directory
       - name: slac-ood-cryosparc
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-ood-cryosparc/
+          path: /sdf/sw/ood/dev/apps/sys/slac-ood-cryosparc/
           type: Directory
+      # logs
       - name: nginx-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/logs/ondemand-nginx
+          path: /sdf/sw/ood/dev/logs/ondemand-nginx
       - name: dashboard-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/logs/dashboard
+          path: /sdf/sw/ood/dev/logs/dashboard
       - name: activejobs-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/logs/activejobs
+          path: /sdf/sw/ood/dev/logs/activejobs
       - name: apache-logs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/logs/httpd
-      - name: slac-sdfdocs
+          path: /sdf/sw/ood/dev/logs/httpd
+      # docs
+      - name: sdf-docs
         hostPath:
-          path: /gpfs/slac/staas/fs1/g/jupyter/ood/dev/apps/sys/slac-sdfdocs/
+          path: /sdf/sw/ood/dev/apps/sys/sdf-docs/
+      # customisation
       - name: pun-html
         configMap:
           name: pun-html 
