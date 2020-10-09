@@ -49,7 +49,7 @@ RUN chmod +x /usr/sbin/tini
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 
 # oidc
-RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.7-1.noarch.rpm \
+RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.8-1.noarch.rpm \
     && yum install --nogpgcheck -y ondemand httpd24-mod_auth_openidc \
     && ln -sf /etc/ood/config/portal/ood_portal.yml /etc/ood/config/ood_portal.yml \
     && mkdir -p /etc/ood/config/portal \
@@ -57,6 +57,9 @@ RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.7-
        /etc/ood/config/htpasswd/ \
        /etc/ood/config/apps/shell \
        /etc/ood/config/apps/bc_desktop 
+
+# copy over latest documentaiton
+RUN git clone https://github.com/slaclab/sdf-docs.git /var/www/ood/public/doc/
 
 # copy over exe's
 COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf /
