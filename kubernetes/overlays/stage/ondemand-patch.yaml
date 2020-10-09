@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: ondemand
 spec:
+  replicas: 1
   template:
     spec:
       nodeSelector:
