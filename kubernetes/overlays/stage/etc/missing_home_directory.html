@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Home Directory Not Found</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #333;
+      font-weight: 300;
+      padding: 15px;
+    }
+    h1 {
+      font-weight: 500;
+      font-size: 30px;
+    }
+    .text-danger {
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h1>Home directory not found</h1>
+  <p>
+  Your home directory appears to be missing. If this is the first time you have logged in with this account, you will
+  need to access our systems using SSH in order to trigger the creation of your home directory. Once logged on, please come back to this page to restart the web server.
+  </p>
+  <p>Please complete the following in order to complete your registration:</p>
+  <ol>
+    <li>Click <a target="_blank" href="/pun/sys/shell/ssh/sdf-login.slac.stanford.edu">here to open a Shell</a> and log in with your SLAC ID. Once complete may close the Shell browser window or type exit.</li>
+    <li>Cllick <a href="/nginx/stop?redir=/pun/sys/dashboard">Restart Web Server</a> to restart this web server instance to log you into ondemand.</li>
+  </ol>
+</body>
+</html>

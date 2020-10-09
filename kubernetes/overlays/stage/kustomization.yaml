@@ -1,0 +1,41 @@
+
+namespace: ondemand-stage
+
+bases:
+- ../../base
+
+resources:
+- ns.yaml
+- ingress.yaml
+
+secretGenerator:
+- name: auth
+  files:
+  - etc/htpasswd
+  - etc/ldap.password
+  - etc/oidc_client_id
+  - etc/oidc_client_secret
+  - etc/oidc_crypto_passphrase
+- name: certs
+  files:
+  - etc/ondemand-dev.key
+  - etc/ondemand-dev.crt
+  - etc/ondemand-dev.intermediates
+
+configMapGenerator:
+- name: ood-config
+  files:
+  - etc/ood_portal.yml
+  - etc/sdf_cluster.yml
+  - etc/sdf_desktop.yml
+- name: pun-html
+  files:
+  - etc/pun.env
+  - etc/missing_home_directory.html
+
+patchesStrategicMerge:
+- ondemand-patch.yaml
+
+images:
+- name: slaclab/slac-ondemand
+  newTag: "20201009.0"

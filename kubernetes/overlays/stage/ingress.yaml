@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ondemand
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+    nginx.ingress.kubernetes.io/client-max-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+  #  cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+  - host: sdf-dev.slac.stanford.edu
+    http:
+      paths:
+      - backend:
+          serviceName: ondemand
+          servicePort: 443
+          #servicePort: 80
+        path: /
+  #tls:
+  #- hosts:
+  #  - ondemand-dev.slac.stanford.edu
+  #  secretName: tls-ondemand

@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ondemand
+spec:
+  template:
+    spec:
+      nodeSelector:
+        storage/sdf: 'true'
+        network: 'public'
+        slurm: 'true'
+      containers:
+      - name: ondemand
+        env:
+        - name: OOD_SERVERNAME
+          value: sdf-dev.slac.stanford.edu
+        - name: OOD_HOST_REGEX
+          value: '[\\w-]+\(\\.slac\\.stanford\\.edu\)?'
+        - name: OOD_DEFAULT_SSHHOST
+          value: sdf.slac.stanford.edu
+        - name: OOD_USER_MAP_CMD
+          value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
+        - name: OOD_AUTH_METHOD
+          #value: ldap
+          value: oidc
+        #- name: OOD_AUTH_LDAPURL
+        #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
+        #- name: OOD_AUTH_LDAPGROUPATTR
+        #  value: gidNumber
+        #- name: OOD_AUTH_LDAPBINDDN
+        #  value: CN=osmaint,OU=Service-Accounts,OU=SCS,DC=win,DC=slac,DC=stanford,DC=edu
+        #- name: OOD_AUTH_LDAPBINDPASSWORD
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: ldap.password
+        #- name: OIDC_CRYPTO_PASSPHRASE
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: oidc_crypto_passphrase
+        - name: OIDC_CACHE_TYPE
+          value: file
+        - name: OIDC_CACHE_DIR
+          value: /sdf/sw/ood/stage/cache
+        - name: OIDC_PROVIDER_METADATA_URL
+          value: https://cilogon.org/.well-known/openid-configuration
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_client_id
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_client_secret
+        - name: OIDC_REMOTE_USER_CLAIM
+          value: email
+        - name: OIDC_REDIRECT
+          value: oidc
+        - name: DEBUG
+          value: "1"
+        volumeMounts:
+        - name: oidc-cache
+          mountPath: /var/cache/httpd/mod_auth_openidc/cache
+        # general filesystems
+        - name: gpfs-slac
+          mountPath: /gpfs/slac/
+        - name: sdf
+          mountPath: /sdf/
+        # support infra sw
+        - name: slurm
+          mountPath: /opt/slurm/
+        # apps
+        - name: slac-ood-jupyter
+          mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
+        - name: ood-desktop-config
+          mountPath: /etc/ood/config/apps/bc_desktop/
+          readOnly: true
+        - name: slac-ood-desktop
+          mountPath: /var/www/ood/apps/sys/bc_desktop
+        - name: slac-ood-matlab
+          mountPath: /var/www/ood/apps/sys/slac-ood-matlab
+        - name: slac-ood-cryosparc
+          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        # logs
+        - name: dashboard-logs
+          mountPath: /var/www/ood/apps/sys/dashboard/log
+        - name: activejobs-logs
+          mountPath: /var/www/ood/apps/sys/activejobs/log
+        - name: nginx-logs
+          mountPath: /var/log/ondemand-nginx/
+        - name: apache-logs
+          mountPath: /var/log/httpd24
+        # docs
+        - name: sdf-docs
+          mountPath: /var/www/ood/public/doc/
+      volumes:
+      - name: ood-clusterd-config
+        configMap:
+          name: ood-config
+          items:
+          - key: sdf_cluster.yml
+            path: sdf.yml
+      - name: oidc-cache
+        hostPath:
+          path: /sdf/sw/ood/stage/cache
+      # general filesystems
+      - name: gpfs-slac
+        hostPath:
+          path: /gpfs/slac/
+      - name: sdf
+        hostPath:
+          path: /sdf/
+      # support infra sw
+      - name: munge-socket
+        hostPath:
+          path: /var/run/munge
+      - name: slurm
+        hostPath:
+          path: /opt/slurm
+      - name: slurm-config
+        hostPath:
+          path: /run/slurm/conf/
+      # ood apps
+      - name: slac-ood-jupyter
+        hostPath:
+          path: /sdf/sw/ood/stage/apps/sys/slac-ood-jupyter/
+          type: Directory
+      - name: ood-desktop-config
+        configMap:
+          name: ood-config
+          items:
+          - key: sdf_desktop.yml
+            path: sdf.yml
+      - name: slac-ood-desktop
+        hostPath:
+          path: /sdf/sw/ood/stage/apps/sys/slac-ood-desktop/
+          type: Directory
+      - name: slac-ood-matlab
+        hostPath:
+          path: /sdf/sw/ood/stage/apps/sys/slac-ood-matlab/
+          type: Directory
+      - name: slac-ood-cryosparc
+        hostPath:
+          path: /sdf/sw/ood/stage/apps/sys/slac-ood-cryosparc/
+          type: Directory
+      # logs
+      - name: nginx-logs
+        hostPath:
+          path: /sdf/sw/ood/stage/logs/ondemand-nginx
+      - name: dashboard-logs
+        hostPath:
+          path: /sdf/sw/ood/stage/logs/dashboard
+      - name: activejobs-logs
+        hostPath:
+          path: /sdf/sw/ood/stage/logs/activejobs
+      - name: apache-logs
+        hostPath:
+          path: /sdf/sw/ood/stage/logs/httpd
+      # docs
+      - name: sdf-docs
+        hostPath:
+          path: /sdf/sw/ood/stage/apps/sys/sdf-docs/
