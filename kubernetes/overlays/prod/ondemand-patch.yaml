@@ -21,20 +21,10 @@ spec:
           value: sdf-login.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
           value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
+        - name: OIDC_CRYPTO_PASSPHRASE
+          value: 4d2ac220c52c7eb16958
         - name: OOD_AUTH_METHOD
-          #value: ldap
           value: oidc
-        #- name: OOD_AUTH_LDAPURL
-        #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
-        #- name: OOD_AUTH_LDAPGROUPATTR
-        #  value: gidNumber
-        #- name: OOD_AUTH_LDAPBINDDN
-        #  value: CN=osmaint,OU=Service-Accounts,OU=SCS,DC=win,DC=slac,DC=stanford,DC=edu
-        #- name: OOD_AUTH_LDAPBINDPASSWORD
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: auth
-        #      key: ldap.password
         - name: OIDC_PROVIDER_METADATA_URL
           value: https://cilogon.org/.well-known/openid-configuration
         - name: OIDC_CLIENT_ID
@@ -52,7 +42,7 @@ spec:
         - name: OIDC_REDIRECT
           value: oidc
         - name: DEBUG
-          value: "1"
+          value: "0"
         volumeMounts:
         # general filesystems
         - name: gpfs-slac

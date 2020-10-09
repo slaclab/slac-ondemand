@@ -35,7 +35,10 @@ spec:
         #      name: auth
         #      key: ldap.password
         - name: OIDC_CRYPTO_PASSPHRASE
-          value: fdb938f237fe9dacfc23 
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_crypto_passphrase
         - name: OIDC_CACHE_TYPE
           value: file
         - name: OIDC_CACHE_DIR

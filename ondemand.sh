@@ -14,6 +14,7 @@ sed -i 's:CustomLog .*:CustomLog /dev/stdout common:g' ${OOD_PORTAL_CONF}
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
 OIDC_METADATA_DIR=/var/cache/httpd/mod_auth_openidc/metadata
+OIDC_CRYPTO_PASSPHRASE=${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}
 case "$OOD_AUTH_METHOD" in
   oidc)
 
@@ -27,7 +28,7 @@ case "$OOD_AUTH_METHOD" in
     sed -i "s|^\#OIDCRedirectURI .*|OIDCRedirectURI  \"https://${OOD_SERVERNAME}/${OIDC_REDIRECT:-oidc}\"|" $OIDC_CONFIG 
     sed -i "s|^\#OIDCClientID .*|OIDCClientID  \"${OIDC_CLIENT_ID//[$'\t\r\n']}\"|" $OIDC_CONFIG 
     sed -i "s|^\#OIDCClientSecret .*|OIDCClientSecret  \"${OIDC_CLIENT_SECRET//[$'\t\r\n']}\"|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCCryptoPassphrase .*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCCryptoPassphrase .*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE//[$'\t\r\n']}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCSessionInactivityTimeout .*|OIDCSessionInactivityTimeout 28800|" $OIDC_CONFIG
     sed -i "s|^\#OIDCSessionMaxDuration .*|OIDCSessionMaxDuration 28800|" $OIDC_CONFIG
     sed -i "s|^\#OIDCCacheType .*|OIDCCacheType ${OIDC_CACHE_TYPE:-shm}|" $OIDC_CONFIG
