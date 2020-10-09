@@ -30,6 +30,8 @@ case "$OOD_AUTH_METHOD" in
     sed -i "s|^\#OIDCCryptoPassphrase .*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCSessionInactivityTimeout .*|OIDCSessionInactivityTimeout 28800|" $OIDC_CONFIG
     sed -i "s|^\#OIDCSessionMaxDuration .*|OIDCSessionMaxDuration 28800|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCCacheType .*|OIDCCacheType ${OIDC_CACHE_TYPE:-shm}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCCacheDir .*|OIDCCacheDir ${OIDC_CACHE_DIR:-/tmp/}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCRemoteUserClaim .*|OIDCRemoteUserClaim ${OIDC_REMOTE_USER_CLAIM:-'preferred_username'}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCPassClaimsAs .*|OIDCPassClaimsAs environment|" $OIDC_CONFIG
     sed -i "s|^\#OIDCStripCookies .*|OIDCStripCookies mod_auth_openidc_session mod_auth_openidc_session_chunks mod_auth_openidc_session_0 mod_auth_openidc_session_1|" $OIDC_CONFIG
@@ -106,9 +108,17 @@ echo "=== $OOD_PORTAL_CONF ==="
 cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
 echo '==='
 /opt/ood/ood-portal-generator/sbin/update_ood_portal -f
+HTTPD_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
 
 # disable http2
 sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
+
+# rewrite top level page redirect
+sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${HTTPD_CONF}
+
+echo "=== $HTTPD_CONF ==="
+cat $HTTPD_CONF | grep -vE '^\s*\#' | grep -vE '^$'
+echo '==='
 
 # start apache
 source /opt/rh/httpd24/enable || true
@@ -126,6 +136,16 @@ echo '==='
 cat <<EOF > /etc/ood/config/apps/shell/env
 DEFAULT_SSHHOST=${OOD_DEFAULT_SSHHOST:-localhost}
 OOD_SHELL_ORIGIN_CHECK='off'
+EOF
+
+
+
+# add extra top level meny items
+OOD_DASHBOARD_INIT_DIR=/etc/ood/config/apps/dashboard/initializers/
+mkdir -p ${OOD_DASHBOARD_INIT_DIR}
+cat <<EOF > ${OOD_DASHBOARD_INIT_DIR}/ood.rb
+NavConfig.categories = [ 'Documentation', 'Files', 'Jobs', 'Clusters', 'Interactive Apps', 'Reports' ]
+NavConfig.categories_whitelist = true
 EOF
 
 # start the webserver

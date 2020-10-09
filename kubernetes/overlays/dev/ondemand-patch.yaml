@@ -6,7 +6,6 @@ spec:
   template:
     spec:
       nodeSelector:
-        storage/staas: 'true'
         storage/sdf: 'true'
         network: 'public'
         slurm: 'true'
@@ -18,7 +17,7 @@ spec:
         - name: OOD_HOST_REGEX
           value: '[\\w-]+\(\\.slac\\.stanford\\.edu\)?'
         - name: OOD_DEFAULT_SSHHOST
-          value: centos7.slac.stanford.edu
+          value: sdf.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
           value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
         - name: OOD_AUTH_METHOD
@@ -35,6 +34,12 @@ spec:
         #    secretKeyRef:
         #      name: auth
         #      key: ldap.password
+        - name: OIDC_CRYPTO_PASSPHRASE
+          value: fdb938f237fe9dacfc23 
+        - name: OIDC_CACHE_TYPE
+          value: file
+        - name: OIDC_CACHE_DIR
+          value: /sdf/sw/ood/dev/cache
         - name: OIDC_PROVIDER_METADATA_URL
           value: https://cilogon.org/.well-known/openid-configuration
         - name: OIDC_CLIENT_ID
@@ -54,6 +59,8 @@ spec:
         - name: DEBUG
           value: "1"
         volumeMounts:
+        - name: oidc-cache
+          mountPath: /var/cache/httpd/mod_auth_openidc/cache
         # general filesystems
         - name: gpfs-slac
           mountPath: /gpfs/slac/
@@ -99,6 +106,9 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
+      - name: oidc-cache
+        hostPath:
+          path: /sdf/sw/ood/dev/cache
       # general filesystems
       - name: gpfs-slac
         hostPath:
