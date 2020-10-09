@@ -25,7 +25,6 @@ secretGenerator:
   - etc/ondemand-dev.crt
   - etc/ondemand-dev.intermediates
 
-
 configMapGenerator:
 - name: ood-config
   files:

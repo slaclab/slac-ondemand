@@ -34,11 +34,6 @@ spec:
         #    secretKeyRef:
         #      name: auth
         #      key: ldap.password
-        - name: OIDC_CRYPTO_PASSPHRASE
-          valueFrom:
-            secretKeyRef:
-              name: auth
-              key: oidc_crypto_passphrase
         - name: OIDC_CACHE_TYPE
           value: file
         - name: OIDC_CACHE_DIR
@@ -169,7 +164,3 @@ spec:
       - name: sdf-docs
         hostPath:
           path: /sdf/sw/ood/dev/apps/sys/sdf-docs/
-      # customisation
-      - name: pun-html
-        configMap:
-          name: pun-html 
