@@ -32,6 +32,11 @@ spec:
           #value: ldap
         #- name: OOD_AUTH_LDAPURL
         #  value: ldaps://ldap601.slac.stanford.edu:636/ou=Accounts,dc=slac,dc=stanford,dc=edu 
+        - name: OIDC_CRYPTO_PASSPHRASE
+          valueFrom:
+            secretKeyRef:
+              name: auth
+              key: oidc_crypto_passphrase
         volumeMounts:
         - name: slurm-config
           mountPath: /run/slurm/conf/
@@ -50,6 +55,12 @@ spec:
         - name: ood-certs
           mountPath: /etc/pki/tls/thisserver/
           readOnly: true
+        # customisation
+        - name: pun-html
+          mountPath: /etc/ood/config/pun/html/
+        - name: pun-html
+          mountPath: /etc/ood/config/apps/dashboard/env
+          subPath: pun.env
       volumes:
       - name: ood-portal-config
         configMap:
@@ -74,3 +85,8 @@ spec:
         secret:
           secretName: certs
           defaultMode: 420
+      # customisation
+      - name: pun-html
+        configMap:
+          name: pun-html
+
