@@ -26,7 +26,7 @@ spec:
         - name: OOD_SERVERNAME
           value: ondemand-dev.slac.stanford.edu
         - name: OOD_DEFAULT_SSHHOST
-          value: centos7.slac.stanford.edu
+          value: sdf.slac.stanford.edu
         - name: OOD_AUTH_METHOD
           value: htpasswd
           #value: ldap
@@ -38,9 +38,6 @@ spec:
           readOnly: true
         - name: munge-socket
           mountPath: /var/run/munge/
-        #- name: munge-key
-        #  mountPath: "/mnt/munge"
-        #  readOnly: true
         - name: ood-portal-config
           mountPath: /etc/ood/config/portal/
           readOnly: true
@@ -54,16 +51,6 @@ spec:
           mountPath: /etc/pki/tls/thisserver/
           readOnly: true
       volumes:
-      #- name: slurm-config
-      #  configMap:
-      #    name: slurm
-      #    items:
-      #    - key: slurm.conf
-      #      path: slurm.conf
-      #- name: munge-key
-      #  secret:
-      #    secretName: munge
-      #    defaultMode: 256
       - name: ood-portal-config
         configMap:
           name: ood-config
