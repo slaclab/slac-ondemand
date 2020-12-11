@@ -5,11 +5,6 @@ OOD_CONF=/etc/ood/config/ood_portal.yml
 sed -i "s/^servername: .*$/servername: ${OOD_SERVERNAME}/" ${OOD_CONF}
 sed -i "s/^host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
 
-# modify logs to stderr/out
-export OOD_PORTAL_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
-sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' ${OOD_PORTAL_CONF}
-sed -i 's:CustomLog .*:CustomLog /dev/stdout common:g' ${OOD_PORTAL_CONF}
-
 # setup auth
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
@@ -105,11 +100,20 @@ echo "=== $OOD_CONF ==="
 cat ${OOD_CONF} | grep -vE '^\s*\#' | grep -vE '^$'
 echo '==='
 
-echo "=== $OOD_PORTAL_CONF ==="
-cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
-echo '==='
+# update ood apache config
 /opt/ood/ood-portal-generator/sbin/update_ood_portal -f
-HTTPD_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
+
+# modify logs to stderr/out
+export OOD_PORTAL_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
+sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf 
+sed -i 's:CustomLog .*:CustomLog /dev/stdout combined:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf
+sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf
+sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' ${OOD_PORTAL_CONF}
+sed -i 's:CustomLog .*:CustomLog /dev/stdout common:g' ${OOD_PORTAL_CONF}
+sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+sed -i 's:CustomLog .*:CustomLog /dev/stdout \:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+
 
 # disable http2
 sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
@@ -117,8 +121,8 @@ sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/r
 # rewrite top level page redirect
 sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${HTTPD_CONF}
 
-echo "=== $HTTPD_CONF ==="
-cat $HTTPD_CONF | grep -vE '^\s*\#' | grep -vE '^$'
+echo "=== $OOD_PORTAL_CONF ==="
+cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
 echo '==='
 
 # start apache
