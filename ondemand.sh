@@ -114,12 +114,11 @@ sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' /opt/rh/httpd24/root/etc/httpd/con
 sed -i 's:CustomLog .*:CustomLog /dev/stdout \:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
 sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
 
-
 # disable http2
 sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
 
-# rewrite top level page redirect
-sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${HTTPD_CONF}
+# enable docs pages
+sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${OOD_PORTAL_CONF}
 
 echo "=== $OOD_PORTAL_CONF ==="
 cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
