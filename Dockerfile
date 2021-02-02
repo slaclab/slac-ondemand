@@ -58,9 +58,6 @@ RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.8-
        /etc/ood/config/apps/shell \
        /etc/ood/config/apps/bc_desktop 
 
-# copy over latest documentaiton
-RUN git clone https://github.com/slaclab/sdf-docs.git /var/www/ood/public/doc/
-
 # copy over exe's
 COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf /
 
@@ -74,7 +71,7 @@ ENV SLAC_SDF_DOCS_VERSION=master
 ENV SLAC_SDF_DOCS_PATH=/var/www/ood/public/doc/
 RUN git clone https://github.com/slaclab/sdf-docs.git $SLAC_SDF_DOCS_PATH \
   && cd $SLAC_SDF_DOCS_PATH \
-  && git checkout $SLAC_SDF_DOCS_VERSION
+  && git checkout $SLAC_SDF_DOCS_VERSION && ls $SLAC_SDF_DOCS_PATH
 
 ENV SLAC_OOD_JUPYTER_VERSION=master
 ENV SLAC_OOD_JUPYTER_PATH=/var/www/ood/apps/sys/slac-ood-jupyter
@@ -84,15 +81,15 @@ RUN git clone https://github.com/slaclab/slac-ood-jupyter.git $SLAC_OOD_JUPYTER_
 
 ENV SLAC_OOD_DESKTOP_VERSION=master
 ENV SLAC_OOD_DESKTOP_PATH=/var/www/ood/apps/sys/bc_desktop
-RUN git clone https://github.com/slaclab/slac-ood-desktop.git $SLAC_OOD_DESKTOP_PATH \
+RUN rm -rf $SLAC_OOD_DESKTOP_PATH && git clone https://github.com/slaclab/slac-ood-desktop.git $SLAC_OOD_DESKTOP_PATH \
   && cd $SLAC_OOD_DESKTOP_PATH \
   && git checkout $SLAC_OOD_DESKTOP_VERSION
 
-ENV SLAC_OOD_MATLAB_VERSION=master
-ENV SLAC_OOD_MATLAB_PATH=/var/www/ood/apps/sys/bc_desktop
-RUN git clone https://github.com/slaclab/slac-ood-matlab.git $SLAC_OOD_MATLAB_PATH \
-  && cd $SLAC_OOD_MATLAB_PATH \
-  && git checkout $SLAC_OOD_MATLAB_VERSION
+#ENV SLAC_OOD_MATLAB_VERSION=master
+#ENV SLAC_OOD_MATLAB_PATH=/var/www/ood/apps/sys/slac-ood-matlab
+#RUN git clone https://github.com/slaclab/slac-ood-matlab.git $SLAC_OOD_MATLAB_PATH \
+#  && cd $SLAC_OOD_MATLAB_PATH \
+#  && git checkout $SLAC_OOD_MATLAB_VERSION
 
 ENV SLAC_OOD_CRYOSPARC_VERSION=master
 ENV SLAC_OOD_CRYOSPARC_PATH=/var/www/ood/apps/sys/slac-ood-cryosparc

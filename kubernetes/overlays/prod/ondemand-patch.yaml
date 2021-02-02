@@ -6,7 +6,6 @@ spec:
   template:
     spec:
       nodeSelector:
-        storage/staas: 'true'
         storage/sdf: 'true'
         network: 'public'
         slurm: 'true'
@@ -18,13 +17,15 @@ spec:
         - name: OOD_HOST_REGEX
           value: '[\\w-]+\(\\.slac\\.stanford\\.edu\)?'
         - name: OOD_DEFAULT_SSHHOST
-          value: sdf-login.slac.stanford.edu
+          value: sdf.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
           value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
-        - name: OIDC_CRYPTO_PASSPHRASE
-          value: 4d2ac220c52c7eb16958
         - name: OOD_AUTH_METHOD
           value: oidc
+        - name: OIDC_CACHE_TYPE
+          value: file
+        - name: OIDC_CACHE_DIR
+          value: /sdf/sw/ood/prod/cache
         - name: OIDC_PROVIDER_METADATA_URL
           value: https://cilogon.org/.well-known/openid-configuration
         - name: OIDC_CLIENT_ID
@@ -44,6 +45,8 @@ spec:
         - name: DEBUG
           value: "0"
         volumeMounts:
+        - name: oidc-cache
+          mountPath: /var/cache/httpd/mod_auth_openidc/cache
         # general filesystems
         - name: gpfs-slac
           mountPath: /gpfs/slac/
@@ -53,17 +56,17 @@ spec:
         - name: slurm
           mountPath: /opt/slurm/
         # apps
-        - name: slac-ood-jupyter
-          mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
-        - name: ood-desktop-config
-          mountPath: /etc/ood/config/apps/bc_desktop/
-          readOnly: true
-        - name: slac-ood-desktop
-          mountPath: /var/www/ood/apps/sys/bc_desktop
-        - name: slac-ood-matlab
-          mountPath: /var/www/ood/apps/sys/slac-ood-matlab
-        - name: slac-ood-cryosparc
-          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        #- name: slac-ood-jupyter
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
+        #- name: ood-desktop-config
+        #  mountPath: /etc/ood/config/apps/bc_desktop/
+        #  readOnly: true
+        #- name: slac-ood-desktop
+        #  mountPath: /var/www/ood/apps/sys/bc_desktop
+        #- name: slac-ood-matlab
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
+        #- name: slac-ood-cryosparc
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
         # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
@@ -71,11 +74,9 @@ spec:
           mountPath: /var/www/ood/apps/sys/activejobs/log
         - name: nginx-logs
           mountPath: /var/log/ondemand-nginx/
-        - name: apache-logs
-          mountPath: /var/log/httpd24
         # docs
-        - name: sdf-docs
-          mountPath: /var/www/ood/public/doc/
+        #- name: sdf-docs
+        #  mountPath: /var/www/ood/public/doc/
         # customisation
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
@@ -89,6 +90,9 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
+      - name: oidc-cache
+        hostPath:
+          path: /sdf/sw/ood/prod/cache
       # general filesystems
       - name: gpfs-slac
         hostPath:
@@ -107,28 +111,28 @@ spec:
         hostPath:
           path: /run/slurm/conf/
       # ood apps
-      - name: slac-ood-jupyter
-        hostPath:
-          path: /sdf/sw/ood/prod/apps/sys/slac-ood-jupyter/
-          type: Directory
+      #- name: slac-ood-jupyter
+      #  hostPath:
+      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-jupyter/
+      #    type: Directory
       - name: ood-desktop-config
         configMap:
           name: ood-config
           items:
           - key: sdf_desktop.yml
             path: sdf.yml
-      - name: slac-ood-desktop
-        hostPath:
-          path: /sdf/sw/ood/prod/apps/sys/slac-ood-desktop/
-          type: Directory
-      - name: slac-ood-matlab
-        hostPath:
-          path: /sdf/sw/ood/prod/apps/sys/slac-ood-matlab/
-          type: Directory
-      - name: slac-ood-cryosparc
-        hostPath:
-          path: /sdf/sw/ood/prod/apps/sys/slac-ood-cryosparc/
-          type: Directory
+      #- name: slac-ood-desktop
+      #  hostPath:
+      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-desktop/
+      #    type: Directory
+      #- name: slac-ood-matlab
+      #  hostPath:
+      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-matlab/
+      #    type: Directory
+      #- name: slac-ood-cryosparc
+      #  hostPath:
+      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-cryosparc/
+      #    type: Directory
       # logs
       - name: nginx-logs
         hostPath:
@@ -143,10 +147,6 @@ spec:
         hostPath:
           path: /sdf/sw/ood/prod/logs/httpd
       # docs
-      - name: sdf-docs
-        hostPath:
-          path: /sdf/sw/ood/prod/apps/sys/sdf-docs/
-      # customisation
-      - name: pun-html
-        configMap:
-          name: pun-html 
+      #- name: sdf-docs
+      #  hostPath:
+      #    path: /sdf/sw/ood/prod/apps/sys/sdf-docs/

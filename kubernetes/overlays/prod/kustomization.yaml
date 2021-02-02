@@ -15,16 +15,15 @@ secretGenerator:
 - name: auth
   files:
   - etc/htpasswd
-  #- etc/ldap.password
   - etc/oidc_client_id
   - etc/oidc_client_secret
+  - etc/oidc_crypto_passphrase
 # doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
   - etc/ondemand-dev.key
   - etc/ondemand-dev.crt
   - etc/ondemand-dev.intermediates
-
 
 configMapGenerator:
 - name: ood-config
@@ -39,4 +38,6 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20200810.0"
+  #newTag: "20201211.0"
+  newTag: "20210128.0"
+
