@@ -23,16 +23,11 @@ RUN set -xe \
         openssh-server openssh-clients \
         sudo \
         python-setuptools sssd nss-pam-ldapd \
+        tcsh \
     && yum -y install turbovnc \
     && yum clean all \
     && rm -rf /var/cache/yum \
     && easy_install supervisor
-
-#
-#    && mkdir /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm \
-#    && chown slurm:root /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm \
-#    && /sbin/create-munge-key \
-#
 
 # setup sssd
 #COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
