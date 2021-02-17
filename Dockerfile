@@ -1,4 +1,5 @@
-FROM centos:centos7
+FROM docker.io/centos:7
+#FROM centos:centos7
 
 # setup slurm
 # shoudl probably user a docker builder AS or something rather than doing again here... perhaps from the slurm image?
@@ -17,8 +18,10 @@ RUN set -xe \
     && yum -y update \
     && yum -y install epel-release centos-release-scl wget \
     && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
+    && wget http://download.opensuse.org/repositories/security://shibboleth/CentOS_7/security:shibboleth.repo -O /etc/yum.repos.d/shibboleth.repo \
     && yum -y update \
     && yum install -y \
+        shibboleth \
         munge \
         openssh-server openssh-clients \
         sudo \
@@ -27,13 +30,18 @@ RUN set -xe \
     && yum -y install turbovnc \
     && yum clean all \
     && rm -rf /var/cache/yum \
-    && easy_install supervisor
+    && easy_install supervisor \
+    && chmod ugo+x /etc/shibboleth/shibd-redhat && mkdir -p /var/run/shibboleth /var/run/shibboleth && chown shibd:shibd /var/run/shibboleth /var/run/shibboleth
 
 # setup sssd
 #COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
 COPY sssd/nsswitch.conf /etc/
 COPY sssd/sssd.conf /etc/sssd/sssd.conf
 RUN chmod 600 /etc/sssd/sssd.conf
+
+# shib logging
+COPY etc/shibboleth/shibd.logger /etc/shibboleth
+COPY etc/shibboleth/native.logger /etc/shibboleth
 
 # setup tini
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tini
@@ -51,7 +59,8 @@ RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.8-
        /etc/ood/config/clusters.d \
        /etc/ood/config/htpasswd/ \
        /etc/ood/config/apps/shell \
-       /etc/ood/config/apps/bc_desktop 
+       /etc/ood/config/apps/bc_desktop \
+    && cp /etc/httpd/conf.d/shib.conf /opt/rh/httpd24/root/etc/httpd/conf.d/10-auth_shib.conf 
 
 # copy over exe's
 COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf /

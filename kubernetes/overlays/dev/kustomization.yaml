@@ -19,6 +19,8 @@ secretGenerator:
   - etc/oidc_client_id
   - etc/oidc_client_secret
   - etc/oidc_crypto_passphrase
+  - etc/sp-cert.pem
+  - etc/sp-key.pem
 - name: certs
   files:
   - etc/ondemand-dev.key
@@ -38,5 +40,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20201211.0"
-  #newTag: "20201009.0"
+  newTag: "20210216.0"

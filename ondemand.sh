@@ -7,9 +7,13 @@ sed -i "s/^host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
 
 # setup auth
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
+
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
 OIDC_METADATA_DIR=/var/cache/httpd/mod_auth_openidc/metadata
 OIDC_CRYPTO_PASSPHRASE=${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}
+
+SHIB_CONFIG=${SHIB_CONFIG:-/etc/shibboleth/shibboleth2.xml}
+
 case "$OOD_AUTH_METHOD" in
   oidc)
 
@@ -73,6 +77,29 @@ EOF
   "auth_request_params": "skin=default"
 }
 EOF
+
+  ;;
+
+  shib)
+
+    sed -i "s|^auth:|auth:\n- 'AuthType shibboleth'\n-  'ShibRequestSetting requireSession 1'\n-  'RequestHeader edit* Cookie \"(^_shibsession_[^;]*(;\\s*)?|;\\s*_shibsession_[^;]*)\" \"\"'\n-  'RequestHeader unset Cookie \"expr=-z %{req:Cookie}\"'\n-  'Require valid-user'\n|" ${OOD_CONF}
+    sed -i "s|^\#logout_redirect:.*|logout_redirect: '/Shibboleth.sso/Logout?return=https%3A%2F%2F${SHIB_SERVERNAME}%2Fidp%2Fprofile%2FLogout'|" ${OOD_CONF}
+
+    sed -i "s|    xmlns:conf=\"urn:mace:shibboleth:3.0:native:sp:config\"|    xmlns:conf=\"urn:mace:shibboleth:3.0:native:sp:config\"\n  xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"  xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\"  xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\"|" ${SHIB_CONFIG}
+    sed -i "s|    <ApplicationDefaults entityID=.*|    <ApplicationDefaults entityID=\"https://${OOD_SERVERNAME}/shibboleth\"|" ${SHIB_CONFIG}
+    sed -i "s| relayState=\"ss:mem\"|  relayState=\"cookie\"|" ${SHIB_CONFIG}
+    sed -i "s| checkAddress=.*|checkAddress=\"true\" consistentAddress=\"true\" handlerSSL=\"true\" cookieProps=\"; path=/; secure; HttpOnly\">|" ${SHIB_CONFIG}
+    sed -i "s|redirectLimit=\"exact\">||" ${SHIB_CONFIG}
+    sed -i "s|<SSO entityID=.*|<SSO entityID=\"https://${SHIB_SERVERNAME}/adfs/services/trust\"|" ${SHIB_CONFIG}
+    sed -i "s|<Logout>SAML2 Local</Logout>|<Logout template=\"logout\">SAML2 Local</Logout>|" ${SHIB_CONFIG}
+    sed -i "s|<Handler type=\"Session\"|<Handler type=\"Session\" Location=\"/Session\" showAttributeValues=\"true\"/>|"
+    sed -i "s|key=\"sp-signing-key.pem\".*|key=\"certs/sp-key.pem\" certificate=\"certs/sp-cert.pem\"/>|" ${SHIB_CONFIG}
+    sed -i "s|key=\"sp-encrypt-key.pem\".*|key=\"certs/sp-key.pem\" certificate=\"certs/sp-cert.pem\"/>|" ${SHIB_CONFIG}
+    sed -i "s|<!-- Example of locally maintained metadata. -->|<MetadataProvider type=\"XML\" url=\"https://${SHIB_SERVERNAME}/FederationMetadata/2007-06/FederationMetadata.xml\" backingFilePath=\"FederationMetadata.xml\" reloadInterval=\"7200\" ></MetadataProvider>|" ${SHIB_CONFIG}
+
+    echo "===== ${SHIB_CONFIG} ====="
+    cat ${SHIB_CONFIG}
+    echo "=========="
 
   ;;
   htpasswd)
