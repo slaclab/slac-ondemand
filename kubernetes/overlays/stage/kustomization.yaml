@@ -39,4 +39,4 @@ configMapGenerator:
 images:
 - name: slaclab/slac-ondemand
   #newTag: "20201009.0"
-  newTag: "20210202.0"
+  newTag: "20210217.0"

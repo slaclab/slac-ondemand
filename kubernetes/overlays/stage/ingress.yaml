@@ -10,6 +10,12 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://cilogon.org"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-XSRFToken,Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Credentials"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+
   #  cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:

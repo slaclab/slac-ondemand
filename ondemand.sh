@@ -7,9 +7,15 @@ sed -i "s/^host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
 
 # setup auth
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
+
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
 OIDC_METADATA_DIR=/var/cache/httpd/mod_auth_openidc/metadata
 OIDC_CRYPTO_PASSPHRASE=${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}
+OIDC_PROVIDER_ISSUER=${OIDC_PROVIDER_ISSUER:-https://cilogon.org}
+OIDC_SCOPE=${OIDC_SCOPE:-openid email profile org.cilogon.userinfo}
+
+CORS_ORIGIN=${CORS_ORIGIN:-${OIDC_PROVIDER_ISSUER}}
+
 case "$OOD_AUTH_METHOD" in
   oidc)
 
@@ -19,24 +25,30 @@ case "$OOD_AUTH_METHOD" in
     sed -i "s|^\#logout_redirect:.*|logout_redirect: '/${OIDC_REDIRECT:-oidc}?logout=https%3A%2F%2F${OOD_SERVERNAME}'|" ${OOD_CONF}
 
     # modify oidc conf
-    sed -i "s|^\#OIDCProviderMetadataURL .*|OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL:-https://cilogon.org/.well-known/openid-configuration}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderMetadataURL .*|OIDCProviderMetadataURL ${OIDC_PROVIDER_METADATA_URL:-${OIDC_PROVIDER_ISSUER}/.well-known/openid-configuration}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCRedirectURI .*|OIDCRedirectURI  \"https://${OOD_SERVERNAME}/${OIDC_REDIRECT:-oidc}\"|" $OIDC_CONFIG 
     sed -i "s|^\#OIDCClientID .*|OIDCClientID  \"${OIDC_CLIENT_ID//[$'\t\r\n']}\"|" $OIDC_CONFIG 
     sed -i "s|^\#OIDCClientSecret .*|OIDCClientSecret  \"${OIDC_CLIENT_SECRET//[$'\t\r\n']}\"|" $OIDC_CONFIG
     sed -i "s|^\#OIDCCryptoPassphrase .*|OIDCCryptoPassphrase  ${OIDC_CRYPTO_PASSPHRASE//[$'\t\r\n']}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCSessionInactivityTimeout .*|OIDCSessionInactivityTimeout 28800|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCSessionMaxDuration .*|OIDCSessionMaxDuration 28800|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCStateMaxNumberOfCookies .*|OIDCStateMaxNumberOfCookies ${OIDC_MAX_COOKIES:-10} true|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionInactivityTimeout .*|OIDCSessionInactivityTimeout ${OIDC_INACTIVITY_TIMEOUT:-300}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionMaxDuration .*|OIDCSessionMaxDuration ${OIDC_SESSION_MAX_DURATION:-0}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCCacheType .*|OIDCCacheType ${OIDC_CACHE_TYPE:-shm}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCCacheDir .*|OIDCCacheDir ${OIDC_CACHE_DIR:-/tmp/}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCRemoteUserClaim .*|OIDCRemoteUserClaim ${OIDC_REMOTE_USER_CLAIM:-'preferred_username'}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCPassClaimsAs .*|OIDCPassClaimsAs environment|" $OIDC_CONFIG
     sed -i "s|^\#OIDCStripCookies .*|OIDCStripCookies mod_auth_openidc_session mod_auth_openidc_session_chunks mod_auth_openidc_session_0 mod_auth_openidc_session_1|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderIssuer .*|OIDCProviderIssuer ${OIDC_PROVIDER_ISSUER:-https://cilogon.org}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderAuthorizationEndpoint .*|OIDCProviderAuthorizationEndpoint ${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT:-https://cilogon.org/authorize}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderTokenEndpoint .*|OIDCProviderTokenEndpoint ${OIDC_PROVIDER_TOKEN_ENDPOINT:-https://cilogon.org/oauth2/token}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionType .*|OIDCSessionType ${OIDC_SESSION_TYPE:-server-cache:persistent}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCSessionCacheFallbackToCookie .*|OIDCSessionCacheFallbackToCookie On|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCPassRefreshToken .*|OIDCPassRefreshToken On|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCPassIDTokenAs .*|OIDCPassIDTokenAs serialized|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCRefreshAccessTokenBeforeExpiry .*|OIDCRefreshAccessTokenBeforeExpiry 60|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderIssuer .*|OIDCProviderIssuer ${OIDC_PROVIDER_ISSUER}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderAuthorizationEndpoint .*|OIDCProviderAuthorizationEndpoint ${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/authorize}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderTokenEndpoint .*|OIDCProviderTokenEndpoint ${OIDC_PROVIDER_TOKEN_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/token}|" $OIDC_CONFIG
     sed -i "s|^\#OIDCProviderTokenEndpointAuth .*|OIDCProviderTokenEndpointAuth ${OIDC_PROVIDER_TOKEN_ENDPOINT_AUTH:-client_secret_post}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderUserInfoEndpoint .*|OIDCProviderUserInfoEndpoint ${OIDC_PROVIDER_USER_INFO_ENDPOINT:-https://cilogon.org/oauth2/userinfo}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCScope .*|OIDCScope \"${OIDC_SCOPE:-openid email profile org.cilogon.userinfo}\"|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCProviderUserInfoEndpoint .*|OIDCProviderUserInfoEndpoint ${OIDC_PROVIDER_USER_INFO_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/userinfo}|" $OIDC_CONFIG
+    sed -i "s|^\#OIDCScope .*|OIDCScope \"${OIDC_SCOPE}\"|" $OIDC_CONFIG
     
     
     #sed -i "s|^\#OIDCMetadataDir.*|OIDCMetadataDir ${OIDC_METADATA_DIR}|" $OIDC_CONFIG
@@ -68,7 +80,7 @@ EOF
 EOF
     cat <<EOF > ${OIDC_METADATA_DIR}/cilogon.org.conf
 {
-  "scope": "openid email profile org.cilogon.userinfo",
+  "scope": "${OIDC_SCOPE}",
   "response_type": "code",
   "auth_request_params": "skin=default"
 }
@@ -119,6 +131,10 @@ sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/r
 
 # enable docs pages
 sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${OOD_PORTAL_CONF}
+
+# allow CORS for cilogon
+sed -i "s|Header Set Cache-Control \"max-age=0, no-store\"|Header Set Cache-Control \"max-age=0, no-store\"\n  Header always Set Access-Control-Allow-Origin \"${OIDC_PROVIDER_ISSUER}\"\n  Header always Set Access-Control-Allow-Methods \"PUT, GET, POST, OPTIONS\"|" ${OOD_PORTAL_CONF}
+#sed -i "s|AuthType openid-connect|  AuthType openid-connect\n    Header Set Access-Control-Allow-Origin \"*\"|g" ${OOD_PORTAL_CONF}
 
 echo "=== $OOD_PORTAL_CONF ==="
 cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
