@@ -20,10 +20,13 @@ spec:
         - name: OOD_DEFAULT_SSHHOST
           value: sdf.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
-          value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
+          value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
         - name: OOD_AUTH_METHOD
           #value: ldap
-          value: oidc
+          #value: oidc
+          value: shib
+        - name: SHIB_SERVERNAME
+          value: adfs.slac.stanford.edu
         #- name: OOD_AUTH_LDAPURL
         #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
         #- name: OOD_AUTH_LDAPGROUPATTR
@@ -35,32 +38,35 @@ spec:
         #    secretKeyRef:
         #      name: auth
         #      key: ldap.password
-        - name: OIDC_CACHE_TYPE
-          value: file
-        - name: OIDC_CACHE_DIR
-          value: /sdf/sw/ood/stage/cache
-        - name: OIDC_PROVIDER_METADATA_URL
-          value: https://cilogon.org/.well-known/openid-configuration
-        - name: OIDC_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: auth
-              key: oidc_client_id
-        - name: OIDC_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: auth
-              key: oidc_client_secret
-        - name: OIDC_REMOTE_USER_CLAIM
-          value: email
-        - name: OIDC_REDIRECT
-          value: oidc
+        #- name: OIDC_CACHE_TYPE
+        #  value: file
+        #- name: OIDC_CACHE_DIR
+        #  value: /sdf/sw/ood/stage/cache
+        #- name: OIDC_PROVIDER_METADATA_URL
+        #  value: https://cilogon.org/.well-known/openid-configuration
+        #- name: OIDC_CLIENT_ID
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: oidc_client_id
+        #- name: OIDC_CLIENT_SECRET
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: oidc_client_secret
+        #- name: OIDC_REMOTE_USER_CLAIM
+        #  value: email
+        #- name: OIDC_REDIRECT
+        #  value: oidc
         - name: DEBUG
           value: "1"
         volumeMounts:
-        - name: oidc-cache
-          mountPath: /var/cache/httpd/mod_auth_openidc/cache
+        #- name: oidc-cache
+        #  mountPath: /var/cache/httpd/mod_auth_openidc/cache
         # general filesystems
+        - name: shib-certs
+          mountPath: /etc/shibboleth/certs/
+          readOnly: true
         - name: gpfs-slac
           mountPath: /gpfs/slac/
         - name: sdf
@@ -99,9 +105,17 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
-      - name: oidc-cache
-        hostPath:
-          path: /sdf/sw/ood/stage/cache
+      #- name: oidc-cache
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/cache
+      - name: shib-certs
+        secret:
+          secretName: auth
+          items:
+          - key: sp-cert.pem
+            path: sp-cert.pem
+          - key: sp-key.pem
+            path: sp-key.pem
       # general filesystems
       - name: gpfs-slac
         hostPath:

@@ -20,7 +20,7 @@ spec:
         - name: OOD_DEFAULT_SSHHOST
           value: sdf.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
-          value: '/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=''^(.*)@slac.stanford.edu$'''  
+          value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
         - name: OOD_AUTH_METHOD
           value: shib
         - name: SHIB_SERVERNAME
