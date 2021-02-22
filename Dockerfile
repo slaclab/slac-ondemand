@@ -31,7 +31,7 @@ RUN set -xe \
     && yum clean all \
     && rm -rf /var/cache/yum \
     && easy_install supervisor \
-    && chmod ugo+x /etc/shibboleth/shibd-redhat && mkdir -p /var/run/shibboleth /var/run/shibboleth && chown shibd:shibd /var/run/shibboleth /var/run/shibboleth
+    && chmod ugo+x /etc/shibboleth/shibd-redhat && mkdir -p /var/run/shibboleth /var/cache/shibboleth && chown shibd:shibd /etc/shibboleth /var/run/shibboleth /var/cache/shibboleth
 
 # setup sssd
 #COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
