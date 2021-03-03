@@ -22,11 +22,11 @@ spec:
         - name: OOD_USER_MAP_CMD
           value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
         - name: OOD_AUTH_METHOD
-          #value: ldap
-          #value: oidc
           value: shib
         - name: SHIB_SERVERNAME
           value: adfs.slac.stanford.edu
+        # -name: OOD_AUTH_METHOD
+        #  value: ldap
         #- name: OOD_AUTH_LDAPURL
         #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
         #- name: OOD_AUTH_LDAPGROUPATTR
@@ -38,12 +38,25 @@ spec:
         #    secretKeyRef:
         #      name: auth
         #      key: ldap.password
+        # -name: OOD_AUTH_METHOD
+        #  value: oidc
+        #- name: OIDC_PROVIDER_ISSUER
+        #  value: https://cilogon.org
+        #- name: OIDC_CACHE_TYPE
+        #  value: shm
+        #- name: OIDC_SESSION_TYPE
+        #  value: server-cache
+        #- name: OIDC_SESSION_MAX_DURATION
+        #  value: '60'
+        #- name: OIDC_INACTIVITY_TIMEOUT
+        #  value: '300'
         #- name: OIDC_CACHE_TYPE
         #  value: file
         #- name: OIDC_CACHE_DIR
         #  value: /sdf/sw/ood/stage/cache
         #- name: OIDC_PROVIDER_METADATA_URL
         #  value: https://cilogon.org/.well-known/openid-configuration
+        
         #- name: OIDC_CLIENT_ID
         #  valueFrom:
         #    secretKeyRef:
