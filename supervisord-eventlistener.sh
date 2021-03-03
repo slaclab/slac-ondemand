@@ -1,10 +1,12 @@
 #!/bin/bash
 
-printf "READY\n";
+printf "READY: $*\n";
 
 while read line; do
   echo "Processing Event: $line" >&2;
   # kill -3 $(cat "/var/run/supervisord.pid")
-  kill -3 1
+  if "$*" != ""; then
+    kill -3 1
+  fi
 done < /dev/stdin
 

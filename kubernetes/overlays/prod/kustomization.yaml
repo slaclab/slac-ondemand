@@ -18,6 +18,8 @@ secretGenerator:
   - etc/oidc_client_id
   - etc/oidc_client_secret
   - etc/oidc_crypto_passphrase
+  - etc/sp-cert.pem
+  - etc/sp-key.pem
 # doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
@@ -38,6 +40,6 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  #newTag: "20210204.0"
-  newTag: "20210210.0"
+  #newTag: "20210210.0"
+  newTag: 'saml2'
 

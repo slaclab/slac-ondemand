@@ -16,6 +16,8 @@ OIDC_SCOPE=${OIDC_SCOPE:-openid email profile org.cilogon.userinfo}
 
 CORS_ORIGIN=${CORS_ORIGIN:-${OIDC_PROVIDER_ISSUER}}
 
+SHIB_CONFIG=${SHIB_CONFIG:-/etc/shibboleth/shibboleth2.xml}
+
 case "$OOD_AUTH_METHOD" in
   oidc)
 
@@ -85,6 +87,54 @@ EOF
   "auth_request_params": "skin=default"
 }
 EOF
+
+  ;;
+
+  shib)
+
+    sed -i 's|^auth:|auth:\n- "AuthType shibboleth"\n- "ShibRequestSetting requireSession 1"\n- "RequestHeader edit* Cookie \\\"(^_shibsession_[^;]*(;\\\\s*)?\|;\\\\s*_shibsession_[^;]*)\\\" \\\"\\\""\n- "RequestHeader unset Cookie \\\"expr=-z %{req:Cookie}\\\""|' /etc/ood/config/ood_portal.yml
+    sed -i "s|^\#logout_redirect:.*|logout_redirect: '/Shibboleth.sso/Logout?return=https%3A%2F%2F${SHIB_SERVERNAME}%2Fidp%2Fprofile%2FLogout'|" ${OOD_CONF}
+
+    sed -i "s|ShibCompatValidUser .*|ShibCompatValidUser On|" /opt/rh/httpd24/root/etc/httpd/conf.d/10-auth_shib.conf
+
+    sed -i "s|    xmlns:conf=\"urn:mace:shibboleth:3.0:native:sp:config\"|    xmlns:conf=\"urn:mace:shibboleth:3.0:native:sp:config\"\n  xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\"  xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\"  xmlns:md=\"urn:oasis:names:tc:SAML:2.0:metadata\"|" ${SHIB_CONFIG}
+    sed -i "s|    <ApplicationDefaults entityID=.*|    <ApplicationDefaults entityID=\"https://${OOD_SERVERNAME}/shibboleth\"|" ${SHIB_CONFIG}
+    sed -i "s| relayState=\"ss:mem\"|  relayState=\"cookie\"|" ${SHIB_CONFIG}
+    sed -i "s| checkAddress=.*|checkAddress=\"true\" consistentAddress=\"true\" handlerSSL=\"true\" cookieProps=\"; path=/; secure; HttpOnly\">|" ${SHIB_CONFIG}
+    sed -i "s|redirectLimit=\"exact\">||" ${SHIB_CONFIG}
+    sed -i "s|<SSO entityID=.*|<SSO entityID=\"https://${SHIB_SERVERNAME}/adfs/services/trust\"|" ${SHIB_CONFIG}
+    sed -i "s|  discoveryProtocol=\"SAMLDS\".*|  >|" ${SHIB_CONFIG}
+    sed -i "s|<Logout>SAML2 Local</Logout>|<Logout template=\"logout\" asynchronous=\"false\">SAML2 Local</Logout>|" ${SHIB_CONFIG}
+    sed -i "s|<Handler type=\"Session\" Location=\"/Session\" showAttributeValues=.*|<Handler type=\"Session\" Location=\"/Session\" showAttributeValues=\"true\"/>|" ${SHIB_CONFIG}
+    sed -i "s|REMOTE_USER=\"eppn subject-id pairwise-id persistent-id\"|REMOTE_USER=\"eppn subject-id pairwise-id persistent-id\" signing=\"true\" encryption=\"true\"|" ${SHIB_CONFIG}
+    sed -i "s|    <CredentialResolver |  <!-- <CredentialResolver |" ${SHIB_CONFIG}
+    sed -i "s| certificate=\"sp-signing-cert.pem\"/>| certificate=\"sp-signing-cert.pem\"/> -->|" ${SHIB_CONFIG}
+    sed -i "s| certificate=\"sp-encrypt-cert.pem\"/>| certificate=\"sp-encrypt-cert.pem\"/> -->|" ${SHIB_CONFIG}
+    sed -i "s|    </ApplicationDefaults>|        <CredentialResolver type=\"File\" key=\"/var/cache/shibboleth/sp-key.pem\" certificate=\"certs/sp-cert.pem\"/>\n    </ApplicationDefaults>|" ${SHIB_CONFIG} 
+    sed -i "s|<!-- Example of locally maintained metadata. -->|<MetadataProvider type=\"XML\" url=\"https://${SHIB_SERVERNAME}/FederationMetadata/2007-06/FederationMetadata.xml\" id=\"SLAC National Accelerator Laboratory\" backingFilePath=\"/var/cache/shibboleth/slacadfs-metadata.xml\" reloadInterval=\"7200\"></MetadataProvider>|" ${SHIB_CONFIG}
+
+    # slac adfs not supplying correctly scoped attrs
+    sed -i "s|<Rule xsi:type=\"ScopeMatchesShibMDScope\"/>|<!-- <Rule xsi:type=\"ScopeMatchesShibMDScope\"/> -->|" /etc/shibboleth/attribute-policy.xml
+
+    # need to cp the key over
+    SHIDB_SP_KEY_FILE=/var/cache/shibboleth/sp-key.pem
+    cat /etc/shibboleth/certs/sp-key.pem > $SHIDB_SP_KEY_FILE && chown shibd:shibd $SHIDB_SP_KEY_FILE && chmod 0600 $SHIDB_SP_KEY_FILE     
+
+    # can't log directly to stdout for some reason
+    ln -sf /dev/stdout /var/log/shibboleth/shibd.log 
+    ln -sf /dev/null /var/log/shibboleth/shibd_warn.log
+    ln -sf /dev/stdout /var/log/shibboleth/signature.log 
+    ln -sf /dev/stdout /var/log/shibboleth/transaction.log
+    cp -rp /etc/shibboleth/shibd.logger.dist /etc/shibboleth/shibd.logger
+
+
+    if [ ! -z ${DEBUG} ]; then
+      sed -i "s/INFO/DEBUG/g" /etc/shibboleth/shibd.logger
+    fi
+
+    echo "===== ${SHIB_CONFIG} ====="
+    cat ${SHIB_CONFIG}
+    echo "=========="
 
   ;;
   htpasswd)

@@ -1,7 +1,8 @@
-TAG=20210217.0
+TAG ?= 20210216.0
+RUNTIME ?= sudo docker
 
 docker:
-	sudo docker build . -t slaclab/slac-ondemand:${TAG}
-	sudo docker push slaclab/slac-ondemand:${TAG}
+	$(RUNTIME) build . -t slaclab/slac-ondemand:$(TAG)
+	$(RUNTIME) push slaclab/slac-ondemand:$(TAG)
 
 
