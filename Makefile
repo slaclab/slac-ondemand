@@ -1,4 +1,4 @@
-TAG ?= 20210216.0
+TAG ?= latest
 RUNTIME ?= sudo docker
 
 docker:

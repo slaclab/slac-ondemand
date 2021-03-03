@@ -40,4 +40,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "saml2"
+  newTag: "latest"
