@@ -2,7 +2,7 @@ v2:
   metadata:
     title: "SDF"
   login:
-    host: "sdf-login01.slac.stanford.edu"
+    host: "sdf-login.slac.stanford.edu"
   job:
     adapter: "slurm"
     conf: "/run/slurm/conf/slurm.conf"
@@ -27,7 +27,7 @@ v2:
 
         # pre-script
         echo -e $(cat user_defined_context.json | awk '/OOD_BOOTSTRAP_SCRIPT/{ gsub(/^\s+\"OOD_BOOTSTRAP_SCRIPT\": \"/,"",$0); gsub(/\"\,\s*$/,"",$0); gsub(/\\r/,"",$0); print $0 }') > bootstrap_script.sh
-        source bootstrap_script.sh 
+        source bootstrap_script.sh
 
         export XDG_RUNTIME_DIR=$(mktemp -d)
         export WEBSOCKIFY_CMD="websockify"
@@ -35,22 +35,28 @@ v2:
         # deal with booting up a singularity image
         if [ ! -z "$SINGULARITY_IMAGE" ]; then
 
-          printenv SINGULARITY_IMAGE_TAG
-          echo $(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
+          #printenv SINGULARITY_IMAGE_TAG
+          #echo $(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
           # parse any variables help in image name
           eval export SINGULARITY_IMAGE=$(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
 
           # start the container instance
           if [ ! -f "${SINGULARITY_IMAGE}" ]; then
-            echo "Error! could not find singularity image ${SINGULARITY_IMAGE}." 
+            echo "Error! could not find singularity image ${SINGULARITY_IMAGE}."
             exit 127
           fi
 
           # start container
-          export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR) 
+          export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR)
           echo "Starting image ${SINGULARITY_IMAGE} as ${SINGULARITY_INSTANCE}..."
-          echo singularity instance start -B /sdf,/gpfs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv ${SINGULARITY_OPTIONS} ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
-          singularity instance start -B /sdf,/gpfs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv ${SINGULARITY_OPTIONS} ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+          OPTIONS=$(cat user_defined_context.json | awk '/SINGULARITY_OPTIONS/{ gsub(/^\s+\"SINGULARITY_OPTIONS\": \"/,"",$0); gsub(/\"\,\s*$/,"",$0); gsub(/\\r/,"",$0); print $0 }')
+          echo singularity instance start -B /sdf,/gpfs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+          singularity instance start -B /sdf,/gpfs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+          EXIT=$?
+          if [ "${EXIT}" != "0" ]; then
+            echo "Error! could not initiate singularity container."
+            exit ${EXIT}
+          fi 
 
           # alias doesn't work for some reason...
           function kill(){ singularity exec instance://${SINGULARITY_INSTANCE} kill $@; }
@@ -83,4 +89,6 @@ v2:
 
         %s
       set_host: "host=$(hostname -s)"
+
+
 
