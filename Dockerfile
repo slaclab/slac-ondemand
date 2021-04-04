@@ -44,8 +44,8 @@ COPY etc/shibboleth/shibd.logger /etc/shibboleth
 COPY etc/shibboleth/native.logger /etc/shibboleth
 
 # setup tini
-ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /usr/sbin/tini
-RUN chmod +x /usr/sbin/tini
+RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /usr/sbin/tini \
+  && chmod +x /usr/sbin/tini
 
 # envs
 #ENV MUNGE_ARGS=''
