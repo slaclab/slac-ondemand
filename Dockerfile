@@ -25,12 +25,12 @@ RUN set -xe \
         munge \
         openssh-server openssh-clients \
         sudo \
-        python-setuptools sssd nss-pam-ldapd \
+        python-setuptools python-pip sssd nss-pam-ldapd \
         tcsh \
     && yum -y install turbovnc \
     && yum clean all \
     && rm -rf /var/cache/yum \
-    && easy_install supervisor \
+    && pip install supervisor \
     && chmod ugo+x /etc/shibboleth/shibd-redhat && mkdir -p /var/run/shibboleth /var/cache/shibboleth && chown shibd:shibd /etc/shibboleth /var/run/shibboleth /var/cache/shibboleth
 
 # setup sssd
