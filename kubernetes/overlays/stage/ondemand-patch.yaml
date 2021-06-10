@@ -12,6 +12,7 @@ spec:
         slurm: 'true'
       containers:
       - name: ondemand
+        imagePullPolicy: Always
         env:
         - name: OOD_SERVERNAME
           value: sdf-dev.slac.stanford.edu
