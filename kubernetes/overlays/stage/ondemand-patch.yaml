@@ -20,7 +20,7 @@ spec:
         - name: OOD_DEFAULT_SSHHOST
           value: sdf.slac.stanford.edu
         - name: OOD_USER_MAP_CMD
-          value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
+          value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$'
         - name: OOD_AUTH_METHOD
           value: shib
         - name: SHIB_SERVERNAME
@@ -31,6 +31,7 @@ spec:
         - name: shib-certs
           mountPath: /etc/shibboleth/certs/
           readOnly: true
+        # general filesystems
         - name: gpfs-slac
           mountPath: /gpfs/slac/
         - name: sdf
@@ -39,17 +40,17 @@ spec:
         - name: slurm
           mountPath: /opt/slurm/
         # apps
-        - name: slac-ood-jupyter
-          mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
-        - name: ood-desktop-config
-          mountPath: /etc/ood/config/apps/bc_desktop/
-          readOnly: true
-        - name: slac-ood-desktop
-          mountPath: /var/www/ood/apps/sys/bc_desktop
-        - name: slac-ood-matlab
-          mountPath: /var/www/ood/apps/sys/slac-ood-matlab
-        - name: slac-ood-cryosparc
-          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
+        #- name: slac-ood-jupyter
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
+        #- name: ood-desktop-config
+        #  mountPath: /etc/ood/config/apps/bc_desktop/
+        #  readOnly: true
+        #- name: slac-ood-desktop
+        #  mountPath: /var/www/ood/apps/sys/bc_desktop
+        #- name: slac-ood-matlab
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
+        #- name: slac-ood-cryosparc
+        #  mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
         # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
@@ -60,8 +61,14 @@ spec:
         - name: apache-logs
           mountPath: /var/log/httpd24
         # docs
-        - name: sdf-docs
-          mountPath: /var/www/ood/public/doc/
+        #- name: sdf-docs
+        #  mountPath: /var/www/ood/public/doc/
+        # customisation
+        - name: pun-html
+          mountPath: /etc/ood/config/pun/html/
+        - name: pun-html
+          mountPath: /etc/ood/config/apps/dashboard/env
+          subPath: pun.env
       volumes:
       - name: ood-clusterd-config
         configMap:
@@ -95,28 +102,28 @@ spec:
         hostPath:
           path: /run/slurm/conf/
       # ood apps
-      - name: slac-ood-jupyter
-        hostPath:
-          path: /sdf/sw/ood/stage/apps/sys/slac-ood-jupyter/
-          type: Directory
+      #- name: slac-ood-jupyter
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/apps/sys/slac-ood-jupyter/
+      #    type: Directory
       - name: ood-desktop-config
         configMap:
           name: ood-config
           items:
           - key: sdf_desktop.yml
             path: sdf.yml
-      - name: slac-ood-desktop
-        hostPath:
-          path: /sdf/sw/ood/stage/apps/sys/slac-ood-desktop/
-          type: Directory
-      - name: slac-ood-matlab
-        hostPath:
-          path: /sdf/sw/ood/stage/apps/sys/slac-ood-matlab/
-          type: Directory
-      - name: slac-ood-cryosparc
-        hostPath:
-          path: /sdf/sw/ood/stage/apps/sys/slac-ood-cryosparc/
-          type: Directory
+      #- name: slac-ood-desktop
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/apps/sys/slac-ood-desktop/
+      #    type: Directory
+      #- name: slac-ood-matlab
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/apps/sys/slac-ood-matlab/
+      #    type: Directory
+      #- name: slac-ood-cryosparc
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/apps/sys/slac-ood-cryosparc/
+      #    type: Directory
       # logs
       - name: nginx-logs
         hostPath:
@@ -131,6 +138,6 @@ spec:
         hostPath:
           path: /sdf/sw/ood/stage/logs/httpd
       # docs
-      - name: sdf-docs
-        hostPath:
-          path: /sdf/sw/ood/stage/apps/sys/sdf-docs/
+      #- name: sdf-docs
+      #  hostPath:
+      #    path: /sdf/sw/ood/stage/apps/sys/sdf-docs/
