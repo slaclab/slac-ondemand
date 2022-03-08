@@ -108,6 +108,9 @@ spec:
         volumeMounts: 
         - mountPath: /sdf-docs
           name: sdf-docs
+        env:
+        - name: SLAC_SDF_DOCS_UPDATE_INTERVAL
+          value: "300"
       volumes:
       - name: sdf-docs
         emptyDir: {}
