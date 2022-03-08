@@ -5,6 +5,7 @@ RUN apt-get -y install git
 ENV SLAC_SDF_DOCS_REPO=https://github.com/slaclab/sdf-docs.git
 ENV SLAC_SDF_DOCS_VERSION=master
 ENV SLAC_SDF_DOCS_PATH=/var/www/ood/public/doc/
+ENV SLAC_SDF_DOCS_UPDATE_INTERVAL=3600
 RUN mkdir -p ${SLAC_SDF_DOCS_PATH} \
     && cd ${SLAC_SDF_DOCS_PATH} \
     && git clone ${SLAC_SDF_DOCS_REPO} 
