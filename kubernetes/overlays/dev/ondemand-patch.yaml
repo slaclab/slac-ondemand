@@ -96,13 +96,21 @@ spec:
         # docs
         - name: sdf-docs
           mountPath: /var/www/ood/public/doc/
+          readOnly: true
         # customisation
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
         - name: pun-html
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
+      - name: sdf-docs 
+        image: slaclab/sdf-docs
+        volumeMounts: 
+        - mountPath: /sdf-docs
+          name: sdf-docs
       volumes:
+      - name: sdf-docs
+        emptyDir: {}
       - name: ood-clusterd-config
         configMap:
           name: ood-config
@@ -174,6 +182,6 @@ spec:
         hostPath:
           path: /sdf/sw/ood/dev/logs/httpd
       # docs
-      - name: sdf-docs
+      - name: sdf-docs-dev
         hostPath:
           path: /sdf/sw/ood/dev/apps/sys/sdf-docs/

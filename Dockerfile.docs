@@ -1,0 +1,14 @@
+FROM ubuntu:latest 
+RUN apt-get -y update
+RUN apt-get -y install git
+
+ENV SLAC_SDF_DOCS_REPO=https://github.com/slaclab/sdf-docs.git
+ENV SLAC_SDF_DOCS_VERSION=master
+ENV SLAC_SDF_DOCS_PATH=/var/www/ood/public/doc/
+RUN mkdir -p ${SLAC_SDF_DOCS_PATH} \
+    && cd ${SLAC_SDF_DOCS_PATH} \
+    && git clone ${SLAC_SDF_DOCS_REPO} 
+
+COPY ./init_sdf-docs.sh ./init_sdf-docs.sh
+  
+ENTRYPOINT ["/init_sdf-docs.sh"]
