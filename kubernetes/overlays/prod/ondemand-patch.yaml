@@ -60,15 +60,31 @@ spec:
         - name: apache-logs
           mountPath: /var/log/httpd24
         # docs
-        #- name: sdf-docs
-        #  mountPath: /var/www/ood/public/doc/
+        - name: sdf-docs
+          mountPath: /var/www/ood/public/doc/
         # customisation
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
         - name: pun-html
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
+      - name: sdf-docs 
+        image: slaclab/sdf-docs
+        env:
+        - name: http_proxy
+          value: http://squid.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://squid.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: SLAC_SDF_DOCS_UPDATE_INTERVAL
+          value: "300"
+        volumeMounts: 
+        - mountPath: /sdf-docs
+          name: sdf-docs
       volumes:
+      - name: sdf-docs
+        emptyDir: {}
       - name: ood-clusterd-config
         configMap:
           name: ood-config

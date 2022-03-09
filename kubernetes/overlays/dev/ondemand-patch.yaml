@@ -191,6 +191,6 @@ spec:
         hostPath:
           path: /sdf/sw/ood/dev/logs/httpd
       # docs
-      - name: sdf-docs-dev
-        hostPath:
-          path: /sdf/sw/ood/dev/apps/sys/sdf-docs/
+      #- name: sdf-docs-dev
+      #  hostPath:
+      #    path: /sdf/sw/ood/dev/apps/sys/sdf-docs/
