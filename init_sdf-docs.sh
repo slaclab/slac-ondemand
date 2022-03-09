@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -x
 
 SLAC_SDF_DOCS_REPO=${SLAC_SDF_DOCS_REPO:-https://github.com/slaclab/sdf-docs.git}
 SLAC_SDF_DOCS_RELEASE=${SLAC_SDF_DOCS_VERSION:-master}
