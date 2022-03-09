@@ -42,4 +42,4 @@ images:
   newTag: "latest"
   #newTag: saml2
 - name: slaclab/sdf-docs
-  newTag: "20220308.15"
+  newTag: "20220308.21"
