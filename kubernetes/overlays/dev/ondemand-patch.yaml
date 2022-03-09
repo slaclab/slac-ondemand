@@ -105,6 +105,10 @@ spec:
           subPath: pun.env
       - name: sdf-docs 
         image: slaclab/sdf-docs
+        env:
+          http_proxy: http://squid.slac.stanford.edu:3128
+          https_proxy: http://squid.slac.stanford.edu:3128
+          no_proxy: .slac.stanford.edu
         volumeMounts: 
         - mountPath: /sdf-docs
           name: sdf-docs
