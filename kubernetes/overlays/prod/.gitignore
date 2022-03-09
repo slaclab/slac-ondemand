@@ -1,1 +1,2 @@
-etc/**
+etc/.secrets/
+etc/.secrets/**

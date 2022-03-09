@@ -14,18 +14,18 @@ patchesStrategicMerge:
 secretGenerator:
 - name: auth
   files:
-  - etc/htpasswd
-  - etc/oidc_client_id
-  - etc/oidc_client_secret
-  - etc/oidc_crypto_passphrase
-  - etc/sp-cert.pem
-  - etc/sp-key.pem
+  - etc/.secrets/htpasswd
+  - etc/.secrets/oidc_client_id
+  - etc/.secrets/oidc_client_secret
+  - etc/.secrets/oidc_crypto_passphrase
+  - etc/.secrets/sp-cert.pem
+  - etc/.secrets/sp-key.pem
 # doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
-  - etc/ondemand-dev.key
-  - etc/ondemand-dev.crt
-  - etc/ondemand-dev.intermediates
+  - etc/.secrets/ondemand-dev.key
+  - etc/.secrets/ondemand-dev.crt
+  - etc/.secrets/ondemand-dev.intermediates
 
 configMapGenerator:
 - name: ood-config
