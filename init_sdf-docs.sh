@@ -7,7 +7,7 @@ SLAC_SDF_DOCS_UPDATE_INTERVAL=${SLAC_SDF_DOCS_UPDATE_INTERVAL:-300}
 SLAC_SDF_DOCS_PATH=${SLAC_SDF_DOCS_PATH:-/sdf-docs}
 
 # always ensure there's some documentation, otherwise exit
-if [ ! -d "${SLAC_SDF_DOCS_PATH}" ] ; then
+if [ -d "${SLAC_SDF_DOCS_PATH}" ] ; then
     mkdir -p ${TMPDIR} && cd ${TMPDIR}
     git clone ${SLAC_SDF_DOCS_REPO}
     cp -r ${TMPDIR}/sdf-docs/. ${SLAC_SDF_DOCS_PATH}

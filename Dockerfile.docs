@@ -5,7 +5,7 @@ RUN apt-get -y update \
 
 ENV SLAC_SDF_DOCS_REPO=https://github.com/slaclab/sdf-docs.git
 ENV SLAC_SDF_DOCS_VERSION=master
-ENV TMPDIR=/stage/
+ENV TMPDIR=/stage
 ENV SLAC_SDF_DOCS_UPDATE_INTERVAL=300
 RUN mkdir -p ${TMPDIR} \
     && cd ${TMPDIR} \ 
