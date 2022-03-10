@@ -15,9 +15,9 @@ secrets: etc
 	vault kv get --field=sp-cert.pem $(SECRET_PATH) > etc/.secrets/sp-cert.pem
 	vault kv get --field=sp-key.pem $(SECRET_PATH) > etc/.secrets/sp-key.pem
 	# certs
-	vault kv get --field=ondemand-dev.key $(SECRET_PATH) > etc/.secrets.key
-	vault kv get --field=ondemand-dev.crt $(SECRET_PATH) > etc/.secrets.crt
-	vault kv get --field=ondemand-dev.intermediates $(SECRET_PATH) > etc/.secrets.intermediates
+	vault kv get --field=ondemand-dev.key $(SECRET_PATH) > etc/.secrets/ondemand-dev.key
+	vault kv get --field=ondemand-dev.crt $(SECRET_PATH) > etc/.secrets/ondemand-dev.crt
+	vault kv get --field=ondemand-dev.intermediates $(SECRET_PATH) > etc/.secrets/ondemand-dev.intermediates
 
 clean:
 	rm -rf etc/.secrets
