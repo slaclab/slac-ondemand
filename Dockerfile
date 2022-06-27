@@ -1,4 +1,4 @@
-FROM docker.io/centos:7
+FROM docker.io/centos:8
 #FROM centos:centos7
 
 # setup slurm
@@ -14,34 +14,31 @@ RUN groupadd -g $MUNGEUSER munge \
 
 # httpd24-mod_ssl httpd24-mod_ldap \
 RUN set -xe \
-    && yum makecache fast \
-    && yum -y update \
-    && yum -y install epel-release centos-release-scl wget \
+    && sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+    && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
+    && dnf distro-sync -y \
+    && dnf install -y 'dnf-command(config-manager)' wget epel-release \ 
+    && dnf module enable -y ruby:2.7 && dnf module enable -y nodejs:12 \
+    && dnf config-manager --set-enabled powertools \
     && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
-    && wget http://download.opensuse.org/repositories/security://shibboleth/CentOS_7/security:shibboleth.repo -O /etc/yum.repos.d/shibboleth.repo \
     && yum -y update \
     && yum install -y \
-        shibboleth \
-        munge \
-        openssh-server openssh-clients \
+        supervisor \
+        sssd nss-pam-ldapd \
         sudo \
-        python-pip sssd nss-pam-ldapd \
-        tcsh \
-    && yum -y install turbovnc \
+        openssh-server openssh-clients \
+        bash tcsh zsh \
+        munge \
+        turbovnc \
+        vim openldap-clients \
     && yum clean all \
-    && rm -rf /var/cache/yum \ 
-    && pip install supervisor==4.2.2 \
-    && chmod ugo+x /etc/shibboleth/shibd-redhat && mkdir -p /var/run/shibboleth /var/cache/shibboleth && chown shibd:shibd /etc/shibboleth /var/run/shibboleth /var/cache/shibboleth
+    && rm -rf /var/cache/yum 
 
 # setup sssd
-#COPY sssd/nsswitch.conf sssd/nslcd.conf /etc/
-COPY sssd/nsswitch.conf /etc/
-COPY sssd/sssd.conf /etc/sssd/sssd.conf
+COPY etc/nsswitch.conf /etc/
+COPY etc/ldap.conf /etc/openldap/ldap.conf
+COPY etc/sssd.conf /etc/sssd/sssd.conf
 RUN chmod 600 /etc/sssd/sssd.conf
-
-# shib logging
-COPY etc/shibboleth/shibd.logger /etc/shibboleth
-COPY etc/shibboleth/native.logger /etc/shibboleth
 
 # setup tini
 RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /usr/sbin/tini \
@@ -52,20 +49,18 @@ RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /u
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 
 # oidc
-RUN yum install -y https://yum.osc.edu/ondemand/latest/ondemand-release-web-1.8-1.noarch.rpm \
-    && yum install --nogpgcheck -y ondemand httpd24-mod_auth_openidc \
-    && ln -sf /etc/ood/config/portal/ood_portal.yml /etc/ood/config/ood_portal.yml \
+RUN yum install -y https://yum.osc.edu/ondemand/2.0/ondemand-release-web-2.0-1.noarch.rpm \
+    && yum install --nogpgcheck -y ondemand \
     && mkdir -p /etc/ood/config/portal \
        /etc/ood/config/clusters.d \
        /etc/ood/config/htpasswd/ \
        /etc/ood/config/apps/shell \
-       /etc/ood/config/apps/bc_desktop \
-    && cp /etc/httpd/conf.d/shib.conf /opt/rh/httpd24/root/etc/httpd/conf.d/10-auth_shib.conf 
+       /etc/ood/config/apps/bc_desktop 
 
 # copy over exe's
 COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf /
 
-# slrm paths
+# slurm paths
 RUN mkdir /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm \
     && chown slurm:root /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm 
 ENV PATH=/opt/slurm/bin:${PATH}
@@ -80,7 +75,7 @@ RUN git clone https://github.com/slaclab/sdf-docs.git $SLAC_SDF_DOCS_PATH \
 ENV SLAC_OOD_JUPYTER_VERSION=master
 ENV SLAC_OOD_JUPYTER_PATH=/var/www/ood/apps/sys/slac-ood-jupyter
 RUN git clone https://github.com/slaclab/slac-ood-jupyter.git $SLAC_OOD_JUPYTER_PATH \
-  && cd $SLAC_OOD_JUPYTER_PATH \
+ && cd $SLAC_OOD_JUPYTER_PATH \
   && git checkout $SLAC_OOD_JUPYTER_VERSION
 
 ENV SLAC_OOD_DESKTOP_VERSION=master
@@ -94,7 +89,7 @@ RUN rm -rf $SLAC_OOD_DESKTOP_PATH && git clone https://github.com/slaclab/slac-o
 #RUN git clone https://github.com/slaclab/slac-ood-matlab.git $SLAC_OOD_MATLAB_PATH \
 #  && cd $SLAC_OOD_MATLAB_PATH \
 #  && git checkout $SLAC_OOD_MATLAB_VERSION
-
+#
 ENV SLAC_OOD_CRYOSPARC_VERSION=master
 ENV SLAC_OOD_CRYOSPARC_PATH=/var/www/ood/apps/sys/slac-ood-cryosparc
 RUN git clone https://github.com/slaclab/slac-ood-cryosparc.git $SLAC_OOD_CRYOSPARC_PATH \
