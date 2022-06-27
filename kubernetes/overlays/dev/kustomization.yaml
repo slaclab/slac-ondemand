@@ -28,6 +28,11 @@ configMapGenerator:
   files:
   - etc/pun.env
   - etc/missing_home_directory.html
+- name: motd
+  options:
+    disableNameSuffixHash: true
+  files:
+  - etc/motd
 
 images:
 - name: slaclab/slac-ondemand
