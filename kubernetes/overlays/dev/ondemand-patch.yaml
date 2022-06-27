@@ -106,6 +106,9 @@ spec:
           mountPath: /var/www/ood/public/doc/
           readOnly: true
         # customisation
+        - name: motd
+          mountPath: /etc/motd
+          subPath: motd
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
         - name: pun-html
@@ -133,6 +136,12 @@ spec:
       volumes:
       - name: sdf-docs
         emptyDir: {}
+      - name: motd
+        configMap:
+          name: motd
+          items:
+          - key: motd
+            path: motd
       - name: ood-clusterd-config
         configMap:
           name: ood-config
