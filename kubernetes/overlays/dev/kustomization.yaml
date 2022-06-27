@@ -6,20 +6,12 @@ bases:
 resources:
 - ns.yaml
 - ingress.yaml
+- sdf-home-pvc.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
 
 secretGenerator:
-- name: auth
-  files:
-  - etc/.secrets/htpasswd
-  - etc/.secrets/ldap.password
-  - etc/.secrets/oidc_client_id
-  - etc/.secrets/oidc_client_secret
-  - etc/.secrets/oidc_crypto_passphrase
-  - etc/.secrets/sp-cert.pem
-  - etc/.secrets/sp-key.pem
 - name: certs
   files:
   - etc/.secrets/ondemand-dev.key
@@ -40,6 +32,5 @@ configMapGenerator:
 images:
 - name: slaclab/slac-ondemand
   newTag: "latest"
-  #newTag: saml2
 - name: slaclab/sdf-docs
   newTag: "20220308.21"
