@@ -13,7 +13,7 @@
 # Example:
 #     servername: 'www.example.com'
 # Default: null (don't use name-based Virtual Host)
-servername: sdf.slac.stanford.edu
+servername: ondemand-dev.slac.stanford.edu
 
 # The server name used for rewrites
 # Example:

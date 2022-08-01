@@ -1,4 +1,28 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ondemand-unauth
+#  annotations:
+#    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
+#    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+#    nginx.ingress.kubernetes.io/client-max-body-size: "50m"
+#    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+  - host: s3df.slac.stanford.edu
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
+
+---
+
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ondemand
@@ -7,21 +31,60 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
     nginx.ingress.kubernetes.io/client-max-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-  #  cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/auth-signin: "https://vouch.slac.stanford.edu/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err"
+    nginx.ingress.kubernetes.io/auth-url: https://vouch.slac.stanford.edu/validate
+    nginx.ingress.kubernetes.io/auth-response-headers: 'X-Vouch-User, X-Vouch-Idp-Claims-Name, X-Vouch-IdP-AccessToken, X-Vouch-IdP-RefreshToken, X-Vouch-IdP-IdToken, X-Vouch-Token'
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      auth_request_set $auth_resp_jwt $upstream_http_x_vouch_IdToken;
+      auth_request_set $auth_resp_err $upstream_http_x_vouch_err;
+      auth_request_set $auth_resp_failcount $upstream_http_x_vouch_failcount;
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Remote-Name $http_x_vouch_idp_claims_name;
+      proxy_set_header Remote-User $http_x_vouch_idp_claims_name;
 spec:
   rules:
-  - host: sdf.slac.stanford.edu
+  - host: s3df.slac.stanford.edu
     http:
       paths:
-      - backend:
-          serviceName: ondemand
-          servicePort: 443
-          #servicePort: 80
-        path: /
-  #tls:
-  #- hosts:
-  #  - ondemand-dev.slac.stanford.edu
-  #  secretName: tls-ondemand
+      - path: /pun/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
+      - path: /node/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80
+      - path: /rnode/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ondemand-path-redirect
+  annotations:
+    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df.slac.stanford.edu/pun/sys/dashboard
+spec:
+  rules:
+  - host: s3df.slac.stanford.edu
+    http:
+      paths:
+      - path: /ondemand
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 

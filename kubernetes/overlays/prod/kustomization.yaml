@@ -1,5 +1,4 @@
-
-namespace: ondemand-prod
+namespace: prod
 
 bases:
 - ../../base
@@ -7,20 +6,13 @@ bases:
 resources:
 - ns.yaml
 - ingress.yaml
+- sdf-home-pvc.yaml
+- ondemand-logs-pvc.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
 
 secretGenerator:
-- name: auth
-  files:
-  - etc/.secrets/htpasswd
-  - etc/.secrets/oidc_client_id
-  - etc/.secrets/oidc_client_secret
-  - etc/.secrets/oidc_crypto_passphrase
-  - etc/.secrets/sp-cert.pem
-  - etc/.secrets/sp-key.pem
-# doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
   - etc/.secrets/ondemand-dev.key
@@ -37,10 +29,14 @@ configMapGenerator:
   files:
   - etc/pun.env
   - etc/missing_home_directory.html
+- name: motd
+  options:
+    disableNameSuffixHash: true
+  files:
+  - etc/motd
 
 images:
 - name: slaclab/slac-ondemand
-  #newTag: '20210817.0'
-  newTag: '20211104.0'
+  newTag: "latest"
 - name: slaclab/sdf-docs
   newTag: "20220308.21"

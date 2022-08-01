@@ -6,33 +6,77 @@ spec:
   template:
     spec:
       nodeSelector:
-        storage/sdf: 'true'
-        network: 'public'
-        slurm: 'true'
+        edu.stanford.slac.sdf.slurm: 'true'
       containers:
       - name: ondemand
+        imagePullPolicy: Always
+        # command: [ "bash", "-c", "sleep infinity" ]
         env:
         - name: OOD_SERVERNAME
-          value: sdf.slac.stanford.edu
+          value: s3df.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '[\\w-]+\(\\.slac\\.stanford\\.edu\)?'
+          value: '\(rome|psc|tur|volt|ampt\)\\d\{3,4\}\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
-          value: sdf.slac.stanford.edu
-        - name: OOD_USER_MAP_CMD
-          value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$'
+          value: s3dflogin.slac.stanford.edu
+        #- name: OOD_USER_MAP_CMD
+        #  value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
+        ## saml2
+        #- name: OOD_AUTH_METHOD
+        #  value: shib
+        #- name: SHIB_SERVERNAME
+        #  value: adfs.slac.stanford.edu
+        ### LDAP
+        #- name: OOD_AUTH_LDAPURL
+        #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
+        #- name: OOD_AUTH_LDAPGROUPATTR
+        #  value: gidNumber
+        #- name: OOD_AUTH_LDAPBINDDN
+        #  value: CN=osmaint,OU=Service-Accounts,OU=SCS,DC=win,DC=slac,DC=stanford,DC=edu
+        #- name: OOD_AUTH_LDAPBINDPASSWORD
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: ldap.password
+        - name: OIDC_CRYPTO_PASSPHRASE
+          $patch: delete
+        # raw
         - name: OOD_AUTH_METHOD
-          value: shib
-        - name: SHIB_SERVERNAME
-          value: adfs.slac.stanford.edu
+          value: raw
+        - name: OOD_AUTH_RAW
+          value: RewriteRule .* - [E=OOD_AUTH_USER:%{HTTP:x-vouch-idp-claims-name}] 
+        - name: USER_ENV
+          value: OOD_AUTH_USER
+        # OIDC
+        #- name: OIDC_CACHE_TYPE
+        #  value: file
+        #- name: OIDC_CACHE_DIR
+        #  value: /sdf/sw/ood/dev/cache
+        #- name: OIDC_PROVIDER_ISSUER
+        #  value: https://dex.slac.stanford.edu
+        #- name: OIDC_PROVIDER_METADATA_URL
+        #  value: https://dex.slac.stanford.edu/.well-known/openid-configuration
+        #- name: OIDC_CLIENT_ID
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: oidc_client_id
+        #- name: OIDC_CLIENT_SECRET
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: auth
+        #      key: oidc_client_secret
+        #- name: OIDC_SCOPE
+        #  value: openid email profile 
+        #- name: OIDC_REMOTE_USER_CLAIM
+        #  value: email
+        #- name: OIDC_REDIRECT
+        #  value: oidc
         - name: DEBUG
           value: "0"
         volumeMounts:
-        - name: shib-certs
-          mountPath: /etc/shibboleth/certs/
-          readOnly: true
+        #- name: oidc-cache
+        #  mountPath: /var/cache/httpd/mod_auth_openidc/cache
         # general filesystems
-        - name: gpfs-slac
-          mountPath: /gpfs/slac/
         - name: sdf
           mountPath: /sdf/
         # support infra sw
@@ -57,12 +101,14 @@ spec:
           mountPath: /var/www/ood/apps/sys/activejobs/log
         - name: nginx-logs
           mountPath: /var/log/ondemand-nginx/
-        - name: apache-logs
-          mountPath: /var/log/httpd24
         # docs
         - name: sdf-docs
           mountPath: /var/www/ood/public/doc/
+          readOnly: true
         # customisation
+        - name: motd
+          mountPath: /etc/motd
+          subPath: motd
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
         - name: pun-html
@@ -70,6 +116,11 @@ spec:
           subPath: pun.env
       - name: sdf-docs 
         image: slaclab/sdf-docs
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
         env:
         - name: http_proxy
           value: http://squid.slac.stanford.edu:3128
@@ -79,80 +130,78 @@ spec:
           value: .slac.stanford.edu
         - name: SLAC_SDF_DOCS_UPDATE_INTERVAL
           value: "300"
+        - name: SLAC_SDF_DOCS_VERSION
+          value: s3df
         volumeMounts: 
         - mountPath: /sdf-docs
           name: sdf-docs
       volumes:
       - name: sdf-docs
         emptyDir: {}
+      - name: motd
+        configMap:
+          name: motd
+          items:
+          - key: motd
+            path: motd
       - name: ood-clusterd-config
         configMap:
           name: ood-config
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
-      - name: shib-certs
-        secret:
-          secretName: auth
-          items:
-          - key: sp-cert.pem
-            path: sp-cert.pem
-          - key: sp-key.pem
-            path: sp-key.pem
       # general filesystems
-      - name: gpfs-slac
-        hostPath:
-          path: /gpfs/slac/
+      # kinda nasty....
       - name: sdf
-        hostPath:
-          path: /sdf/
+        #hostPath:
+        #  path: /sdf/
+        emptyDir: {}
       # support infra sw
       - name: munge-socket
-        hostPath:
-          path: /var/run/munge
+        #hostPath:
+        #  path: /var/run/munge
+        emptyDir: {}
       - name: slurm
-        hostPath:
-          path: /opt/slurm
+        #hostPath:
+        #  path: /opt/slurm
+        emptyDir: {}
       - name: slurm-config
-        hostPath:
-          path: /run/slurm/conf/
+        #hostPath:
+        #  path: /run/slurm/conf/
+        emptyDir: {}
       # ood apps
       #- name: slac-ood-jupyter
       #  hostPath:
-      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-jupyter/
+      #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-jupyter/
       #    type: Directory
-      - name: ood-desktop-config
-        configMap:
-          name: ood-config
-          items:
-          - key: sdf_desktop.yml
-            path: sdf.yml
+      #- name: ood-desktop-config
+      #  configMap:
+      #    name: ood-config
+      #    items:
+      #    - key: sdf_desktop.yml
+      #      path: sdf.yml
       #- name: slac-ood-desktop
       #  hostPath:
-      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-desktop/
+      #    path: /tmp//sdf/sw/ood/dev/apps/sys/slac-ood-desktop/
       #    type: Directory
       #- name: slac-ood-matlab
       #  hostPath:
-      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-matlab/
+      #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-matlab/
       #    type: Directory
       #- name: slac-ood-cryosparc
       #  hostPath:
-      #    path: /sdf/sw/ood/prod/apps/sys/slac-ood-cryosparc/
+      #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-cryosparc/
       #    type: Directory
       # logs
       - name: nginx-logs
-        hostPath:
-          path: /sdf/sw/ood/prod/logs/ondemand-nginx
+        persistentVolumeClaim:
+          claimName: nginx-logs
       - name: dashboard-logs
-        hostPath:
-          path: /sdf/sw/ood/prod/logs/dashboard
+        persistentVolumeClaim:
+          claimName: dashboard-logs
       - name: activejobs-logs
-        hostPath:
-          path: /sdf/sw/ood/prod/logs/activejobs
+        persistentVolumeClaim:
+          claimName: activejobs-logs
       - name: apache-logs
-        hostPath:
-          path: /sdf/sw/ood/prod/logs/httpd
-      # docs
-      #- name: sdf-docs
-      #  hostPath:
-      #    path: /sdf/sw/ood/prod/apps/sys/sdf-docs/
+        persistentVolumeClaim:
+          claimName: apache-logs

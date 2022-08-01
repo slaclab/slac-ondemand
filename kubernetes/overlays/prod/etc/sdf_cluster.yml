@@ -19,7 +19,7 @@ v2:
         export XDG_RUNTIME_DIR=$(mktemp -d)
         module purge
         %s
-      set_host: "host=$(hostname -s)"
+      set_host: "host=$(hostname -A | awk '{print $1}')"
     vnc:
       script_wrapper: |
         # take the user defined context file and parse anything in upper case as environment variables
@@ -88,7 +88,7 @@ v2:
         fi # singularity image
 
         %s
-      set_host: "host=$(hostname -s)"
+      set_host: "host=$(hostname -A | awk '{print $1}')"
 
 
 
