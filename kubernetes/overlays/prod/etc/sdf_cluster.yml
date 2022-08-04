@@ -2,15 +2,15 @@ v2:
   metadata:
     title: "SDF"
   login:
-    host: "sdf-login.slac.stanford.edu"
+    host: "s3dflogin.slac.stanford.edu"
   job:
     adapter: "slurm"
     conf: "/run/slurm/conf/slurm.conf"
     bin_overrides:
-      sbatch: "/opt/slurm/bin/sbatch"
-      squeue: "/opt/slurm/bin/squeue"
-      scontrol: "/opt/slurm/bin/scontrol"
-      scancel: "/opt/slurm/bin/scancel"
+      sbatch: "/opt/slurm/slurm-curr/bin/sbatch"
+      squeue: "/opt/slurm/slurm-curr/bin/squeue"
+      scontrol: "/opt/slurm/slurm-curr/bin/scontrol"
+      scancel: "/opt/slurm/slurm-curr/bin/scancel"
   batch_connect:
     basic:
       script_wrapper: |
