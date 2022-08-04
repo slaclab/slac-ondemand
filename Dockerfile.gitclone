@@ -1,0 +1,6 @@
+FROM alpine/git:v2.36.2
+
+COPY ./entrypoint-gitclone.sh /entrypoint-gitclone.sh
+WORKDIR /app
+ 
+ENTRYPOINT ["sh","/entrypoint-gitclone.sh"]
