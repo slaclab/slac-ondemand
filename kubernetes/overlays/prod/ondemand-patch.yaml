@@ -7,6 +7,10 @@ spec:
     spec:
       nodeSelector:
         edu.stanford.slac.sdf.slurm: 'true'
+      dnsConfig:
+        searches:
+          - sdf.slac.stanford.edu
+          - slac.stanford.edu
       containers:
       - name: ondemand
         imagePullPolicy: Always
@@ -15,67 +19,20 @@ spec:
         - name: OOD_SERVERNAME
           value: s3df.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '\(rome|psc|tur|volt|ampt\)\\d\{3,4\}\\.slac\\.stanford\\.edu'
+          value: '\(sdfrome\)\\d\{3,4\}\\.sdf\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
           value: s3dflogin.slac.stanford.edu
-        #- name: OOD_USER_MAP_CMD
-        #  value: /opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex='^(.*)@slac.stanford.edu$' 
-        ## saml2
-        #- name: OOD_AUTH_METHOD
-        #  value: shib
-        #- name: SHIB_SERVERNAME
-        #  value: adfs.slac.stanford.edu
-        ### LDAP
-        #- name: OOD_AUTH_LDAPURL
-        #  value: ldaps://ldap-ad.slac.stanford.edu:636/DC=win,DC=slac,DC=Stanford,DC=edu?sAMAccountName?sub?(objectclass=person)(objectcategory=user)
-        #- name: OOD_AUTH_LDAPGROUPATTR
-        #  value: gidNumber
-        #- name: OOD_AUTH_LDAPBINDDN
-        #  value: CN=osmaint,OU=Service-Accounts,OU=SCS,DC=win,DC=slac,DC=stanford,DC=edu
-        #- name: OOD_AUTH_LDAPBINDPASSWORD
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: auth
-        #      key: ldap.password
         - name: OIDC_CRYPTO_PASSPHRASE
           $patch: delete
-        # raw
         - name: OOD_AUTH_METHOD
           value: raw
         - name: OOD_AUTH_RAW
           value: RewriteRule .* - [E=OOD_AUTH_USER:%{HTTP:x-vouch-idp-claims-name}] 
         - name: USER_ENV
           value: OOD_AUTH_USER
-        # OIDC
-        #- name: OIDC_CACHE_TYPE
-        #  value: file
-        #- name: OIDC_CACHE_DIR
-        #  value: /sdf/sw/ood/dev/cache
-        #- name: OIDC_PROVIDER_ISSUER
-        #  value: https://dex.slac.stanford.edu
-        #- name: OIDC_PROVIDER_METADATA_URL
-        #  value: https://dex.slac.stanford.edu/.well-known/openid-configuration
-        #- name: OIDC_CLIENT_ID
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: auth
-        #      key: oidc_client_id
-        #- name: OIDC_CLIENT_SECRET
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: auth
-        #      key: oidc_client_secret
-        #- name: OIDC_SCOPE
-        #  value: openid email profile 
-        #- name: OIDC_REMOTE_USER_CLAIM
-        #  value: email
-        #- name: OIDC_REDIRECT
-        #  value: oidc
         - name: DEBUG
           value: "0"
         volumeMounts:
-        #- name: oidc-cache
-        #  mountPath: /var/cache/httpd/mod_auth_openidc/cache
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -101,7 +58,7 @@ spec:
           mountPath: /var/www/ood/apps/sys/activejobs/log
         - name: nginx-logs
           mountPath: /var/log/ondemand-nginx/
-        # docs
+        # apps
         - name: sdf-docs
           mountPath: /var/www/ood/public/doc/
           readOnly: true
