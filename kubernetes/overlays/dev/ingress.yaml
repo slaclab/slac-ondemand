@@ -9,7 +9,7 @@ metadata:
 #    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   rules:
-  - host: ondemand-dev.slac.stanford.edu
+  - host: s3df-dev.slac.stanford.edu
     http:
       paths:
       - path: /
@@ -43,7 +43,7 @@ metadata:
       proxy_set_header Remote-User $http_x_vouch_idp_claims_name;
 spec:
   rules:
-  - host: ondemand-dev.slac.stanford.edu
+  - host: s3df-dev.slac.stanford.edu
     http:
       paths:
       - path: /pun/
@@ -67,3 +67,24 @@ spec:
             name: ondemand
             port:
               number: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ondemand-path-redirect
+  annotations:
+    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/pun/sys/dashboard
+spec:
+  rules:
+  - host: s3df-dev.slac.stanford.edu
+    http:
+      paths:
+      - path: /ondemand
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 

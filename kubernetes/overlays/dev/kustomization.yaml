@@ -1,4 +1,4 @@
-namespace: ondemand-dev
+namespace: dev
 
 bases:
 - ../../base
@@ -7,6 +7,7 @@ resources:
 - ns.yaml
 - ingress.yaml
 - sdf-home-pvc.yaml
+- ondemand-logs-pvc.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
