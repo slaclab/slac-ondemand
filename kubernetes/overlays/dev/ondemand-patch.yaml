@@ -39,6 +39,7 @@ spec:
         # support infra sw
         - name: slurm
           mountPath: /opt/slurm/
+          readOnly: true
         # apps
         #- name: slac-ood-jupyter
         #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
@@ -69,8 +70,10 @@ spec:
         - name: motd
           mountPath: /etc/motd
           subPath: motd
+          readOnly: true
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
+          readOnly: true
         - name: pun-html
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
@@ -105,9 +108,9 @@ spec:
             ephemeral-storage: 100Mi
         env:
         - name: http_proxy
-          value: http://squid.slac.stanford.edu:3128
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
         - name: https_proxy
-          value: http://squid.slac.stanford.edu:3128
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
         - name: no_proxy
           value: .slac.stanford.edu
         - name: GIT_REPO
@@ -134,6 +137,8 @@ spec:
           items:
           - key: sdf_cluster.yml
             path: sdf.yml
+          - key: rubin_interactive_cluster.yaml
+            path: rubin_interactive_cluster.yaml
       # general filesystems
       # kinda nasty....
       - name: sdf

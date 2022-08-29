@@ -24,6 +24,7 @@ configMapGenerator:
   files:
   - etc/ood_portal.yml
   - etc/sdf_cluster.yml
+  - etc/rubin_interactive_cluster.yaml
   - etc/sdf_desktop.yml
 - name: pun-html
   files:
