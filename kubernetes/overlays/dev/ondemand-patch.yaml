@@ -5,8 +5,8 @@ metadata:
 spec:
   template:
     spec:
-      nodeSelector:
-        edu.stanford.slac.sdf.slurm: 'true'
+      #nodeSelector:
+      #  edu.stanford.slac.sdf.slurm: 'true'
       dnsConfig:
         searches:
           - sdf.slac.stanford.edu
@@ -33,6 +33,13 @@ spec:
         - name: DEBUG
           value: "0"
         volumeMounts:
+        # source code overrides
+        - name: linuxhost-adapter-src
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/launcher.rb
+          subPath: launcher.rb
+        - name: linuxhost-adapter-src
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
+          subPath: script_wrapper.erb.sh
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -77,6 +84,7 @@ spec:
         - name: pun-html
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
+          readOnly: true
       - name: sdf-docs 
         image: slaclab/sdf-docs
         resources:
@@ -86,9 +94,9 @@ spec:
             ephemeral-storage: 100Mi
         env:
         - name: http_proxy
-          value: http://squid.slac.stanford.edu:3128
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
         - name: https_proxy
-          value: http://squid.slac.stanford.edu:3128
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
         - name: no_proxy
           value: .slac.stanford.edu
         - name: SLAC_SDF_DOCS_UPDATE_INTERVAL
@@ -121,6 +129,9 @@ spec:
         - mountPath: /app
           name: slac-ood-jupyter
       volumes:
+      - name: linuxhost-adapter-src
+        configMap:
+          name: linuxhost-adapter-src
       - name: sdf-docs
         emptyDir: {}
       - name: slac-ood-jupyter
@@ -133,12 +144,12 @@ spec:
             path: motd
       - name: ood-clusterd-config
         configMap:
-          name: ood-config
+          name: ood-clusters
           items:
-          - key: sdf_cluster.yml
-            path: sdf.yml
-          - key: rubin_interactive_cluster.yaml
-            path: rubin_interactive_cluster.yaml
+          - key: s3df.yml
+            path: s3df.yml
+          - key: rubin.yml
+            path: rubin.yml
       # general filesystems
       # kinda nasty....
       - name: sdf

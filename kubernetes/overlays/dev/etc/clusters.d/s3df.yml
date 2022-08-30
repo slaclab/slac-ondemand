@@ -1,6 +1,6 @@
 v2:
   metadata:
-    title: "SDF"
+    title: "S3DF"
   login:
     host: "s3dflogin.slac.stanford.edu"
   job:
