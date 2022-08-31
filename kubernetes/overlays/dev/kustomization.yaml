@@ -29,9 +29,8 @@ configMapGenerator:
   - etc/ood_portal.yml
 - name: ood-clusters
   files:
-  - etc/clusters.d/s3df.yml
-  - etc/clusters.d/rubin.yml
-  - etc/clusters.d/sdf_desktop.yml
+  - etc/clusters.d/s3df_batch.yml
+  - etc/clusters.d/rubin_interactive.yml
 - name: pun-html
   files:
   - etc/pun.env

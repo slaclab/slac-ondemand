@@ -146,10 +146,10 @@ spec:
         configMap:
           name: ood-clusters
           items:
-          - key: s3df.yml
-            path: s3df.yml
-          - key: rubin.yml
-            path: rubin.yml
+          - key: s3df_batch.yml
+            path: s3df_batch.yml
+          - key: rubin_interactive.yml
+            path: rubin_interactive.yml
       # general filesystems
       # kinda nasty....
       - name: sdf
