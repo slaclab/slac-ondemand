@@ -61,10 +61,9 @@ class OodCore::Job::Adapters::LinuxHost::Launcher
     cmd = ssh_cmd(hostname, ['/usr/bin/env', 'bash'])
 
     kill_cmd = <<~SCRIPT
-    # Get the tmux pane PID for the target session
     pane_pid=$(tmux list-panes -aF '\#{session_name} \#{pane_pid}' | grep '#{session_name}' | cut -f 2 -d ' ')
-    pane_sinit_pid=$(ps -o ppid= -p "$pane_pid")
-    kill "$pane_sinit_pid"
+    job_pids=$(pstree -p -l "$pane_pid" | grep -oP '\\(\\K\\d+(?=\\))')
+    kill $job_pids
     SCRIPT
 
     call(*cmd, stdin: kill_cmd)
