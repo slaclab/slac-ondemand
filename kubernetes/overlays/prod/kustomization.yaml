@@ -8,6 +8,7 @@ resources:
 - ingress.yaml
 - sdf-home-pvc.yaml
 - ondemand-logs-pvc.yaml
+- slurm-service.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
@@ -20,11 +21,18 @@ secretGenerator:
   - etc/.secrets/ondemand-dev.intermediates
 
 configMapGenerator:
+- name: linuxhost-adapter-src
+  files:
+  - src/linux_host_adapter/launcher.rb
+  - src/linux_host_adapter/script_wrapper.erb.sh
 - name: ood-config
   files:
   - etc/ood_portal.yml
-  - etc/sdf_cluster.yml
-  - etc/sdf_desktop.yml
+- name: ood-clusters
+  files:
+  - etc/clusters.d/s3df_batch.yml
+  - etc/clusters.d/rubin_interactive.yml
+  - etc/clusters.d/supercdms_interactive.yml
 - name: pun-html
   files:
   - etc/pun.env
@@ -37,6 +45,6 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "latest"
+  newTag: "20221104.0"
 - name: slaclab/sdf-docs
   newTag: "20220308.21"

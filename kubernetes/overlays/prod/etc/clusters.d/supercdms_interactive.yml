@@ -1,0 +1,29 @@
+v2:
+  metadata:
+    title: "SuperCDMS Interactive"
+  login:
+    host: "cdms.sdf.slac.stanford.edu"
+  job:
+    adapter: "linux_host"
+    submit_host: "cdms.sdf.slac.stanford.edu"
+    ssh_hosts:
+    - sdfrome003.sdf.slac.stanford.edu
+    - sdfrome004.sdf.slac.stanford.edu
+    site_timeout: '604800' 
+    debug: true
+    singularity_bin: /usr/bin/singularity
+    singularity_bindpath: /etc,/media,/mnt,/opt,/run,/srv,/usr,/var,/sdf,/fs,/lscratch
+    singularity_image: '/fs/ddn/sdf/group/ml/software/images/slac-ml/20211101.0/slac-ml@20211101.0.sif'
+    #strict_host_checking: false
+    tmux_bin: /usr/bin/tmux
+  batch_connect:
+    basic:
+      script_wrapper: |
+        #source /etc/profile.d/modules.sh
+        #export MODULEPATH=/usr/share/Modules/modulefiles:/sdf/sw/modulefiles:/sdf/group/cryoem/sw/modulefiles/
+        export XDG_RUNTIME_DIR=$(mktemp -d)
+        #module purge
+        %s
+      set_host: "host=$(hostname -A | awk '{print $1}')"
+
+

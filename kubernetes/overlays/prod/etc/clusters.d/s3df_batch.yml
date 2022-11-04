@@ -1,0 +1,94 @@
+v2:
+  metadata:
+    title: "S3DF Batch"
+  login:
+    host: "s3dflogin.slac.stanford.edu"
+  job:
+    adapter: "slurm"
+    conf: "/run/slurm/conf/slurm.conf"
+    bin_overrides:
+      sbatch: "/opt/slurm/slurm-curr/bin/sbatch"
+      squeue: "/opt/slurm/slurm-curr/bin/squeue"
+      scontrol: "/opt/slurm/slurm-curr/bin/scontrol"
+      scancel: "/opt/slurm/slurm-curr/bin/scancel"
+  batch_connect:
+    basic:
+      script_wrapper: |
+        source /etc/profile.d/modules.sh
+        export MODULEPATH=/usr/share/Modules/modulefiles:/sdf/sw/modulefiles:/sdf/group/cryoem/sw/modulefiles/
+        export XDG_RUNTIME_DIR=$(mktemp -d)
+        module purge
+        %s
+      set_host: "host=$(hostname -A | awk '{print $1}')"
+    vnc:
+      script_wrapper: |
+        # take the user defined context file and parse anything in upper case as environment variables
+        eval export $(cat user_defined_context.json | awk '$1 ~ /^.*\"[[:upper:]]+/{ split($0,a,": "); gsub(/\"/,"",a[1]); gsub(/ /,"",a[1]); gsub(/,\s*$/, "", a[2]); print a[1] "=" a[2] }')
+
+        # pre-script
+        echo -e $(cat user_defined_context.json | awk '/OOD_BOOTSTRAP_SCRIPT/{ gsub(/^\s+\"OOD_BOOTSTRAP_SCRIPT\": \"/,"",$0); gsub(/\"\,\s*$/,"",$0); gsub(/\\r/,"",$0); print $0 }') > bootstrap_script.sh
+        source bootstrap_script.sh
+
+        export XDG_RUNTIME_DIR=$(mktemp -d)
+        export WEBSOCKIFY_CMD="websockify"
+
+        # deal with booting up a singularity image
+        if [ ! -z "$SINGULARITY_IMAGE" ]; then
+
+          #printenv SINGULARITY_IMAGE_TAG
+          #echo $(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
+          # parse any variables help in image name
+          eval export SINGULARITY_IMAGE=$(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
+
+          # start the container instance
+          if [ ! -f "${SINGULARITY_IMAGE}" ]; then
+            echo "Error! could not find singularity image ${SINGULARITY_IMAGE}."
+            exit 127
+          fi
+
+          # start container
+          export SINGULARITY_INSTANCE=$(basename -- $XDG_RUNTIME_DIR)
+          echo "Starting image ${SINGULARITY_IMAGE} as ${SINGULARITY_INSTANCE}..."
+          OPTIONS=$(cat user_defined_context.json | awk '/SINGULARITY_OPTIONS/{ gsub(/^\s+\"SINGULARITY_OPTIONS\": \"/,"",$0); gsub(/\"\,\s*$/,"",$0); gsub(/\\r/,"",$0); print $0 }')
+          echo singularity instance start -B /sdf,/fs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+          singularity instance start -B /sdf,/fs,/scratch,/lscratch,${XDG_RUNTIME_DIR}:/tmp --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+          EXIT=$?
+          if [ "${EXIT}" != "0" ]; then
+            echo "Error! could not initiate singularity container."
+            exit ${EXIT}
+          fi 
+
+          # alias doesn't work for some reason...
+          function kill(){ singularity exec instance://${SINGULARITY_INSTANCE} kill $@; }
+          export -f kill
+          function pkill(){ singularity exec instance://${SINGULARITY_INSTANCE} pkill $@; }
+          export -f pkill
+          function pgrep(){ singularity exec instance://${SINGULARITY_INSTANCE} pgrep $@; }
+          export -f pgrep
+          function vncserver(){ singularity exec instance://${SINGULARITY_INSTANCE} vncserver $@; }
+          export -f vncserver
+          function vncpasswd(){ singularity exec instance://${SINGULARITY_INSTANCE} vncpasswd $@; }
+          export -f vncpasswd
+
+          function xfconf-query(){ singularity exec instance://${SINGULARITY_INSTANCE} xfconf-query $@; }
+          export -f xfconf-query
+          function xfce4-session(){ singularity exec instance://${SINGULARITY_INSTANCE} xfce4-session $@; }
+          export -f xfce4-session
+
+          function gsettings(){ singularity exec instance://${SINGULARITY_INSTANCE} gsettings $@; }
+          export -f gsettings
+          function dconf(){ singularity exec instance://${SINGULARITY_INSTANCE} dconf $@; }
+          export -f dconf
+          function mate-session(){ singularity exec instance://${SINGULARITY_INSTANCE} mate-session $@; }
+          export -f mate-session
+
+          function websockify(){ singularity exec instance://${SINGULARITY_INSTANCE} websockify $@; }
+          export -f websockify
+
+        fi # singularity image
+
+        %s
+      set_host: "host=$(hostname -A | awk '{print $1}')"
+
+
+
