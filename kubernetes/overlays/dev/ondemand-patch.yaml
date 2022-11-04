@@ -7,10 +7,13 @@ spec:
     spec:
       #nodeSelector:
       #  edu.stanford.slac.sdf.slurm: 'true'
-      dnsConfig:
-        searches:
-          - sdf.slac.stanford.edu
-          - slac.stanford.edu
+#      dnsConfig:
+#        options:
+#        - name: ndots
+#          value: "1"
+#        searches:
+#        - sdf.slac.stanford.edu
+#        - slac.stanford.edu
       containers:
       - name: ondemand
         imagePullPolicy: Always
@@ -19,9 +22,9 @@ spec:
         - name: OOD_SERVERNAME
           value: s3df-dev.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '\(sdfrome\)\\d\{3,4\}\\.sdf\\.slac\\.stanford\\.edu'
+          value: '\(sdfrome\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
-          value: s3dflogin.slac.stanford.edu
+          value: s3dflogin.sdf.slac.stanford.edu
         - name: OIDC_CRYPTO_PASSPHRASE
           $patch: delete
         - name: OOD_AUTH_METHOD
@@ -124,7 +127,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-jupyter.git
         - name: GIT_RELEASE
-          value: s3df
+          value: s3df-dev
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
@@ -145,11 +148,11 @@ spec:
       - name: ood-clusterd-config
         configMap:
           name: ood-clusters
-          items:
-          - key: s3df_batch.yml
-            path: s3df_batch.yml
-          - key: rubin_interactive.yml
-            path: rubin_interactive.yml
+#          items:
+#          - key: s3df_batch.yml
+#            path: s3df_batch.yml
+#          - key: rubin_interactive.yml
+#            path: rubin_interactive.yml
       # general filesystems
       # kinda nasty....
       - name: sdf

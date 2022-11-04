@@ -8,6 +8,7 @@ resources:
 - ingress.yaml
 - sdf-home-pvc.yaml
 - ondemand-logs-pvc.yaml
+- slurm-service.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
@@ -31,6 +32,7 @@ configMapGenerator:
   files:
   - etc/clusters.d/s3df_batch.yml
   - etc/clusters.d/rubin_interactive.yml
+  - etc/clusters.d/supercdms_interactive.yml
 - name: pun-html
   files:
   - etc/pun.env
