@@ -33,6 +33,10 @@ spec:
         - name: DEBUG
           value: "0"
         volumeMounts:
+        - name: sssd-cache
+          mountPath: /var/lib/sss/db/
+        - name: sssd-mc
+          mountPath: /var/lib/sss/mc/
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -188,3 +192,7 @@ spec:
       - name: apache-logs
         persistentVolumeClaim:
           claimName: apache-logs
+      - name: sssd-cache
+        emptyDir: {}
+      - name: sssd-mc
+        emptyDir: {}
