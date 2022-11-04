@@ -127,7 +127,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-jupyter.git
         - name: GIT_RELEASE
-          value: s3df-dev
+          value: s3df
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
