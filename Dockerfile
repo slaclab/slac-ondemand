@@ -37,6 +37,7 @@ RUN set -xe \
 # setup sssd
 COPY etc/nsswitch.conf /etc/
 COPY etc/ldap.conf /etc/openldap/ldap.conf
+COPY etc/krb5.conf /etc/krb5.conf
 COPY etc/sssd.conf /etc/sssd/sssd.conf
 RUN chmod 600 /etc/sssd/sssd.conf
 
