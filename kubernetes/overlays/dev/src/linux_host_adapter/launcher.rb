@@ -40,6 +40,8 @@ class OodCore::Job::Adapters::LinuxHost::Launcher
     @session_name_label = 'ood'
     @ssh_hosts = ssh_hosts
     @strict_host_checking = strict_host_checking
+    # hack
+    @strict_host_checking = false
     @submit_host = submit_host
     @tmux_bin = tmux_bin
     @username = Etc.getlogin
