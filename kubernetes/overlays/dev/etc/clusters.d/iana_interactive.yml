@@ -1,11 +1,11 @@
 v2:
   metadata:
-    title: "SuperCDMS Interactive"
+    title: "Interactive Analysis"
   login:
-    host: "cdms.sdf.slac.stanford.edu"
+    host: "iana.sdf.slac.stanford.edu"
   job:
     adapter: "linux_host"
-    submit_host: "cdms.sdf.slac.stanford.edu"
+    submit_host: "iana.sdf.slac.stanford.edu"
     ssh_hosts:
     - sdfiana001.sdf.slac.stanford.edu
     - sdfiana002.sdf.slac.stanford.edu
@@ -15,7 +15,6 @@ v2:
     - sdfiana006.sdf.slac.stanford.edu
     - sdfiana007.sdf.slac.stanford.edu
     - sdfiana008.sdf.slac.stanford.edu
-    #- sdfrome004.sdf.slac.stanford.edu
     site_timeout: '604800' 
     debug: true
     singularity_bin: /usr/bin/singularity
