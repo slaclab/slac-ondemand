@@ -33,6 +33,11 @@ configMapGenerator:
   - etc/clusters.d/s3df_batch.yml
   - etc/clusters.d/rubin_interactive.yml
   - etc/clusters.d/supercdms_interactive.yml
+  - etc/clusters.d/iana_interactive.yml
+  - etc/clusters.d/suncat_interactive.yml
+  - etc/clusters.d/psana_interactive.yml
+  - etc/clusters.d/neutrino_interactive.yml
+  - etc/clusters.d/mli_interactive.yml
 - name: pun-html
   files:
   - etc/pun.env
