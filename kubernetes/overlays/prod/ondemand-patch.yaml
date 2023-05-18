@@ -43,6 +43,10 @@ spec:
         - name: linuxhost-adapter-src
           mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
+        # ssh config
+        - name: ssh-config
+          mountPath: /etc/ssh/ssh_config.d/01-s3df.conf
+          subPath: 01-s3df.conf
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -135,6 +139,10 @@ spec:
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
+      - name: ssh-config
+        configMap:
+          name: ssh-config
+          defaultMode: 0644
       - name: sdf-docs
         emptyDir: {}
       - name: slac-ood-jupyter
