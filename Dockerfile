@@ -1,5 +1,4 @@
-FROM docker.io/centos:8
-#FROM centos:centos7
+FROM rockylinux:8
 
 # setup slurm
 # shoudl probably user a docker builder AS or something rather than doing again here... perhaps from the slurm image?
@@ -12,14 +11,10 @@ RUN groupadd -g $MUNGEUSER munge \
     && groupadd -g $SLURMGROUP slurm \
     && useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
 
-# httpd24-mod_ssl httpd24-mod_ldap \
 RUN set -xe \
-    && sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
-    && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
-    && dnf distro-sync -y \
     && dnf install -y 'dnf-command(config-manager)' wget epel-release \ 
-    && dnf module enable -y ruby:2.7 && dnf module enable -y nodejs:12 \
     && dnf config-manager --set-enabled powertools \
+    && dnf module enable -y ruby:3.0 nodejs:14 \
     && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
     && yum install -y \
@@ -50,7 +45,7 @@ RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /u
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 
 # oidc
-RUN yum install -y https://yum.osc.edu/ondemand/2.0/ondemand-release-web-2.0-1.noarch.rpm \
+RUN yum install -y https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm \
     && yum install --nogpgcheck -y ondemand \
     && mkdir -p /etc/ood/config/portal \
        /etc/ood/config/clusters.d \
