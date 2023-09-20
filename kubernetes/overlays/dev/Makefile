@@ -1,4 +1,8 @@
-SECRET_PATH=secret/tid/sdf/ondemand/ondemand-dev
+SECRET_PATH=secret/tid/ondemand-dev/certs
+KUBECTL_DEPLOY_CONTEXT ?= 'ondemand-dev'
+
+ensure-context:
+	if [ '$(shell kubectl config current-context)' != $(KUBECTL_DEPLOY_CONTEXT) ]; then echo "Configured deployment context incorrect; expecting $(KUBECTL_DEPLOY_CONTEXT)."; exit 1; fi
 
 secrets: 
 	mkdir -p etc/.secrets
@@ -15,4 +19,4 @@ run-kustomize:
 
 dump: secrets run-kustomize clean-secrets
 
-apply: secrets run-apply clean-secrets
+apply: ensure-context secrets run-apply clean-secrets
