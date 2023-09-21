@@ -50,6 +50,7 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20221104.0"
+  #newTag: "20221104.0"
+  newTag: ondemand3
 - name: slaclab/sdf-docs
   newTag: "20220308.21"
