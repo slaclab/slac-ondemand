@@ -2,7 +2,7 @@ FROM rockylinux:8
 
 # setup slurm
 # shoudl probably user a docker builder AS or something rather than doing again here... perhaps from the slurm image?
-ARG MUNGEUSER=891
+ARG MUNGEUSER=16952
 ARG SLURMUSER=16924
 ARG SLURMGROUP=1034
 
@@ -18,12 +18,16 @@ RUN set -xe \
     && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
     && yum install -y \
+        file \
+        lsof \
         supervisor \
         sssd nss-pam-ldapd \
         sudo \
         openssh-server openssh-clients \
         bash tcsh zsh \
         munge \
+        lua-posix \
+        rsync \
         turbovnc \
         vim openldap-clients \
     && yum clean all \
