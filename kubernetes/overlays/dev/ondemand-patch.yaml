@@ -43,6 +43,9 @@ spec:
         - name: linuxhost-adapter-src
           mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
+        - name: shell-app-src
+          mountPath: /var/www/ood/apps/sys/shell/app.js
+          subPath: app.js
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -135,6 +138,9 @@ spec:
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
+      - name: shell-app-src
+        configMap:
+          name: shell-app-src
       - name: sdf-docs
         emptyDir: {}
       - name: slac-ood-jupyter

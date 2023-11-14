@@ -25,6 +25,9 @@ configMapGenerator:
   files:
   - src/linux_host_adapter/launcher.rb
   - src/linux_host_adapter/script_wrapper.erb.sh
+- name: shell-app-src
+  files:
+  - src/shell/app.js
 - name: ood-config
   files:
   - etc/ood_portal.yml
