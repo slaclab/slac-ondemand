@@ -28,6 +28,9 @@ configMapGenerator:
 - name: shell-app-src
   files:
   - src/shell/app.js
+- name: batch-connect-app-vnc-src
+  files:
+  - src/vnc/vnc.rb
 - name: ood-config
   files:
   - etc/ood_portal.yml
