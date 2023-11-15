@@ -57,8 +57,6 @@ spec:
           mountPath: /opt/slurm/
           readOnly: true
         # apps
-        #- name: slac-ood-jupyter
-        #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
         #- name: ood-desktop-config
         #  mountPath: /etc/ood/config/apps/bc_desktop/
         #  readOnly: true
@@ -66,8 +64,6 @@ spec:
         #  mountPath: /var/www/ood/apps/sys/bc_desktop
         #- name: slac-ood-matlab
         #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
-        #- name: slac-ood-cryosparc
-        #  mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
         # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
@@ -81,6 +77,9 @@ spec:
           readOnly: true
         - name: slac-ood-jupyter
           mountPath: /var/www/ood/apps/sys/slac-ood-jupyter/
+          readOnly: true
+        - name: slac-ood-cryosparc
+          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc/
           readOnly: true
         # customisation
         - name: motd
@@ -137,6 +136,28 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
+      - name: slac-ood-cryosparc
+        image: slaclab/gitclone
+        #command: ["/bin/sh","-c","sleep infinity"]
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-cryosparc.git
+        - name: GIT_RELEASE
+          value: s3df-dev
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-cryosparc
       volumes:
       - name: linuxhost-adapter-src
         configMap:
@@ -150,6 +171,8 @@ spec:
       - name: sdf-docs
         emptyDir: {}
       - name: slac-ood-jupyter
+        emptyDir: {}
+      - name: slac-ood-cryosparc
         emptyDir: {}
       - name: motd
         configMap:
