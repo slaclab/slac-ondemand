@@ -34,6 +34,7 @@ configMapGenerator:
 - name: ood-config
   files:
   - etc/ood_portal.yml
+  - etc/s3df_desktop.yml
 - name: ood-clusters
   files:
   - etc/clusters.d/s3df_batch.yml
