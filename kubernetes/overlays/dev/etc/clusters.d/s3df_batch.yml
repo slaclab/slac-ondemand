@@ -30,6 +30,7 @@ v2:
         source bootstrap_script.sh
 
         export TMPDIR=$(mktemp -d)
+        export XDG_RUNTIME_DIR=${TMPDIR}
         export WEBSOCKIFY_CMD="websockify"
         export LANGUAGE=C
         export LC_ALL=C
