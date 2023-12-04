@@ -14,9 +14,9 @@ clean-secrets:
 run-apply:
 	kubectl apply -k .
 
-run-dump:
+run-kustomize:
 	kubectl kustomize .
 
-dump: secrets run-dump clean-secrets
+dump: secrets run-kustomize clean-secrets
 
 apply: ensure-context secrets run-apply clean-secrets

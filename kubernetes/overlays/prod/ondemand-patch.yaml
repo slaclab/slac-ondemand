@@ -22,7 +22,7 @@ spec:
         - name: OOD_SERVERNAME
           value: s3df.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
+          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana|sdfturing\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
           value: s3dflogin.sdf.slac.stanford.edu
         - name: OIDC_CRYPTO_PASSPHRASE
@@ -38,15 +38,21 @@ spec:
         volumeMounts:
         # source code overrides
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/launcher.rb
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/launcher.rb
           subPath: launcher.rb
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/2.7/ondemand/2.0.28/gems/ood_core-0.21.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
         # ssh config
         - name: ssh-config
           mountPath: /etc/ssh/ssh_config.d/01-s3df.conf
           subPath: 01-s3df.conf
+        - name: shell-app-src
+          mountPath: /var/www/ood/apps/sys/shell/app.js
+          subPath: app.js
+        - name: batch-connect-app-vnc-src
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/batch_connect/templates/vnc.rb
+          subPath: vnc.rb
         # general filesystems
         - name: sdf
           mountPath: /sdf/
@@ -55,17 +61,13 @@ spec:
           mountPath: /opt/slurm/
           readOnly: true
         # apps
-        #- name: slac-ood-jupyter
-        #  mountPath: /var/www/ood/apps/sys/slac-ood-jupyter
-        #- name: ood-desktop-config
-        #  mountPath: /etc/ood/config/apps/bc_desktop/
-        #  readOnly: true
-        #- name: slac-ood-desktop
-        #  mountPath: /var/www/ood/apps/sys/bc_desktop
+        - name: ood-desktop-config
+          mountPath: /etc/ood/config/apps/bc_desktop/
+          readOnly: true
+        - name: slac-ood-desktop
+          mountPath: /var/www/ood/apps/sys/bc_desktop
         #- name: slac-ood-matlab
         #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
-        #- name: slac-ood-cryosparc
-        #  mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc
         # logs
         - name: dashboard-logs
           mountPath: /var/www/ood/apps/sys/dashboard/log
@@ -80,6 +82,9 @@ spec:
         - name: slac-ood-jupyter
           mountPath: /var/www/ood/apps/sys/slac-ood-jupyter/
           readOnly: true
+        - name: slac-ood-cryosparc
+          mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc/
+          readOnly: true
         # customisation
         - name: motd
           mountPath: /etc/motd
@@ -93,7 +98,7 @@ spec:
           subPath: pun.env
           readOnly: true
       - name: sdf-docs 
-        image: slaclab/sdf-docs
+        image: slaclab/gitclone
         resources:
           limits:
             ephemeral-storage: 5Gi
@@ -106,12 +111,11 @@ spec:
           value: http://sdfproxy.sdf.slac.stanford.edu:3128
         - name: no_proxy
           value: .slac.stanford.edu
-        - name: SLAC_SDF_DOCS_UPDATE_INTERVAL
-          value: "300"
-        - name: SLAC_SDF_DOCS_VERSION
-          value: s3df
+        - name: GIT_REPO
+          value: https://github.com/slaclab/sdf-docs.git
+        - name: GIT_RELEASE
         volumeMounts: 
-        - mountPath: /sdf-docs
+        - mountPath: /app
           name: sdf-docs
       - name: slac-ood-jupyter
         image: slaclab/gitclone
@@ -135,10 +139,60 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
+      - name: slac-ood-desktop
+        image: slaclab/gitclone
+        #command: ["/bin/sh","-c","sleep infinity"]
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-desktop.git
+        - name: GIT_RELEASE
+          value: s3df-dev
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-desktop
+      - name: slac-ood-cryosparc
+        image: slaclab/gitclone
+        #command: ["/bin/sh","-c","sleep infinity"]
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-cryosparc.git
+        - name: GIT_RELEASE
+          value: s3df-dev
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-cryosparc
       volumes:
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
+      - name: shell-app-src
+        configMap:
+          name: shell-app-src
+      - name: batch-connect-app-vnc-src
+        configMap:
+          name: batch-connect-app-vnc-src
       - name: ssh-config
         configMap:
           name: ssh-config
@@ -146,6 +200,10 @@ spec:
       - name: sdf-docs
         emptyDir: {}
       - name: slac-ood-jupyter
+        emptyDir: {}
+      - name: slac-ood-cryosparc
+        emptyDir: {}
+      - name: slac-ood-desktop
         emptyDir: {}
       - name: motd
         configMap:
@@ -156,11 +214,6 @@ spec:
       - name: ood-clusterd-config
         configMap:
           name: ood-clusters
-#          items:
-#          - key: s3df_batch.yml
-#            path: s3df_batch.yml
-#          - key: rubin_interactive.yml
-#            path: rubin_interactive.yml
       # general filesystems
       # kinda nasty....
       - name: sdf
@@ -180,20 +233,12 @@ spec:
         hostPath:
           path: /run/slurm/conf/
       # ood apps
-      #- name: slac-ood-jupyter
-      #  hostPath:
-      #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-jupyter/
-      #    type: Directory
-      #- name: ood-desktop-config
-      #  configMap:
-      #    name: ood-config
-      #    items:
-      #    - key: sdf_desktop.yml
-      #      path: sdf.yml
-      #- name: slac-ood-desktop
-      #  hostPath:
-      #    path: /tmp//sdf/sw/ood/dev/apps/sys/slac-ood-desktop/
-      #    type: Directory
+      - name: ood-desktop-config
+        configMap:
+          name: ood-config
+          items:
+          - key: s3df_desktop.yml
+            path: s3df.yml
       #- name: slac-ood-matlab
       #  hostPath:
       #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-matlab/

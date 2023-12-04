@@ -28,9 +28,16 @@ configMapGenerator:
 - name: ssh-config
   files:
   - 01-s3df.conf=etc/ssh.conf
+- name: shell-app-src
+  files:
+  - src/shell/app.js
+- name: batch-connect-app-vnc-src
+  files:
+  - src/vnc/vnc.rb
 - name: ood-config
   files:
   - etc/ood_portal.yml
+  - etc/s3df_desktop.yml
 - name: ood-clusters
   files:
   - etc/clusters.d/s3df_batch.yml
@@ -53,6 +60,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: "20221104.0"
-- name: slaclab/sdf-docs
-  newTag: "20220308.21"
+  newTag: 3.0.3
