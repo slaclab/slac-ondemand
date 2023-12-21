@@ -15,7 +15,7 @@ RUN set -xe \
     && dnf install -y 'dnf-command(config-manager)' wget epel-release \ 
     && dnf config-manager --set-enabled powertools \
     && dnf module enable -y ruby:3.0 nodejs:14 \
-    && wget https://turbovnc.org/pmwiki/uploads/Downloads/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
+    && wget https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
     && yum install -y \
         file \
