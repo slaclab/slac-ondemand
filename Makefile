@@ -2,9 +2,13 @@ TAG ?= latest
 RUNTIME ?= sudo podman
 NOCACHE ?= 
 
-ondemand:
+build:
 	$(RUNTIME) build . $(NOCACHE) -t slaclab/slac-ondemand:$(TAG)
+
+push:
 	$(RUNTIME) push slaclab/slac-ondemand:$(TAG)
+
+ondemand: build push
 
 docs:
 	$(RUNTIME) build . -f Dockerfile.docs -t slaclab/sdf-docs:$(TAG)

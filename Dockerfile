@@ -58,7 +58,7 @@ RUN yum install -y https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.n
        /etc/ood/config/apps/bc_desktop 
 
 # copy over exe's
-COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf /
+COPY docker-entrypoint.sh supervisord-eventlistener.sh ondemand.sh supervisord.conf purgecache.sh /
 
 # slurm paths
 RUN mkdir /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm \
