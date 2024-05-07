@@ -157,7 +157,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-desktop.git
         - name: GIT_RELEASE
-          value: prod
+          value: s3df-dev
         volumeMounts:
         - mountPath: /app
           name: slac-ood-desktop
@@ -179,7 +179,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-cryosparc.git
         - name: GIT_RELEASE
-          value: s3df-dev
+          value: prod
         volumeMounts:
         - mountPath: /app
           name: slac-ood-cryosparc
