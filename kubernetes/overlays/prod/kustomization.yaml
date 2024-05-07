@@ -60,4 +60,4 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: 20240202-1302
+  newTag: 20240225-2015
