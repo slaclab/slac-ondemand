@@ -26,6 +26,8 @@ case "$OOD_AUTH_METHOD" in
   raw)
 
     sed -i "s|^\#  - 'Require valid-user'.*|- ${OOD_AUTH_RAW}|" ${OOD_CONF}
+    sed -i "s|^\#user_map_match: null|^user_map_match: '^([^@]+)@slac.stanford.edu$'|" ${OOD_CONF}
+    #sed -i "/# ldap\!/,/^$/ s/^$/- ${OOD_AUTH_RAW}/" ${OOD_CONF}
 
   ;;
 
