@@ -5,6 +5,6 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-for item in "$@"; do
-    /opt/ood/nginx_stage/sbin/nginx_stage pun --skip-nginx --user $1 && /opt/ood/nginx_stage/sbin/nginx_stage nginx --signal 'reload' --user $1
+for user in "$@"; do
+    /opt/ood/nginx_stage/sbin/nginx_stage pun --skip-nginx --user $user && /opt/ood/nginx_stage/sbin/nginx_stage nginx --signal 'reload' --user $user
 done
