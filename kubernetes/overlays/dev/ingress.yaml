@@ -1,25 +1,28 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ondemand-unauth
-#  annotations:
-#    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
-#    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
-#    nginx.ingress.kubernetes.io/client-max-body-size: "50m"
-#    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-spec:
-  rules:
-  - host: s3df-dev.slac.stanford.edu
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: ondemand
-            port:
-              number: 80 
-
+#
+# # - NOTE 2024-08-28 this / ingress moved to sdf-docs/kubernetes/overlays/dev/ingress.yml to separate docs into sdf-docs cluster
+# # 
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: ondemand-unauth
+##  annotations:
+##    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
+##    nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
+##    nginx.ingress.kubernetes.io/client-max-body-size: "50m"
+##    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+#spec:
+#  rules:
+#  - host: s3df-dev.slac.stanford.edu
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: ondemand
+#            port:
+#              number: 80 
+#
 ---
 
 apiVersion: networking.k8s.io/v1
