@@ -2,11 +2,14 @@
 
 # update config
 OOD_CONF=/etc/ood/config/ood_portal.yml
-sed -i "s/^servername: .*$/servername: ${OOD_SERVERNAME}/" ${OOD_CONF}
-sed -i "s/^host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
+
+sed -i "s/^\#servername: .*$/servername: ${OOD_SERVERNAME}/" ${OOD_CONF}
+sed -i "s/^\#host_regex: .*$/host_regex: '${OOD_HOST_REGEX}'/" ${OOD_CONF}
 
 # setup auth
 OOD_AUTH_METHOD=${OOD_AUTH_METHOD:-htpasswd}
+
+CORS_ORIGIN=${CORS_ORIGIN:-${OIDC_PROVIDER_ISSUER}}
 
 OIDC_CONFIG=/opt/rh/httpd24/root/etc/httpd/conf.d/auth_openidc.conf
 OIDC_METADATA_DIR=/var/cache/httpd/mod_auth_openidc/metadata
@@ -14,15 +17,22 @@ OIDC_CRYPTO_PASSPHRASE=${OIDC_CRYPTO_PASSPHRASE:-$(openssl rand -hex 10)}
 OIDC_PROVIDER_ISSUER=${OIDC_PROVIDER_ISSUER:-https://cilogon.org}
 OIDC_SCOPE=${OIDC_SCOPE:-openid email profile org.cilogon.userinfo}
 
-CORS_ORIGIN=${CORS_ORIGIN:-${OIDC_PROVIDER_ISSUER}}
-
 SHIB_CONFIG=${SHIB_CONFIG:-/etc/shibboleth/shibboleth2.xml}
 
+sed -i "s|\#auth:|auth:|" ${OOD_CONF}
+
 case "$OOD_AUTH_METHOD" in
+
+  raw)
+
+    sed -i "s|^\#  - 'Require valid-user'.*|- ${OOD_AUTH_RAW}|" ${OOD_CONF}
+
+  ;;
+
   oidc)
 
     # modify portal.yaml
-    sed -i "s|^auth:|auth:\n- 'AuthType openid-connect'\n|" ${OOD_CONF}
+    sed -i "s|^\#  - 'AuthType openid-connect'|  - 'AuthType openid-connect'|" ${OOD_CONF}
     sed -i "s|^\#oidc_uri:.*|oidc_uri: /${OIDC_REDIRECT:-oidc}|" ${OOD_CONF}
     sed -i "s|^\#logout_redirect:.*|logout_redirect: '/${OIDC_REDIRECT:-oidc}?logout=https%3A%2F%2F${OOD_SERVERNAME}'|" ${OOD_CONF}
 
@@ -46,10 +56,18 @@ case "$OOD_AUTH_METHOD" in
     sed -i "s|^\#OIDCPassIDTokenAs .*|OIDCPassIDTokenAs serialized|" $OIDC_CONFIG
     sed -i "s|^\#OIDCRefreshAccessTokenBeforeExpiry .*|OIDCRefreshAccessTokenBeforeExpiry 60|" $OIDC_CONFIG
     sed -i "s|^\#OIDCProviderIssuer .*|OIDCProviderIssuer ${OIDC_PROVIDER_ISSUER}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderAuthorizationEndpoint .*|OIDCProviderAuthorizationEndpoint ${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/authorize}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderTokenEndpoint .*|OIDCProviderTokenEndpoint ${OIDC_PROVIDER_TOKEN_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/token}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderTokenEndpointAuth .*|OIDCProviderTokenEndpointAuth ${OIDC_PROVIDER_TOKEN_ENDPOINT_AUTH:-client_secret_post}|" $OIDC_CONFIG
-    sed -i "s|^\#OIDCProviderUserInfoEndpoint .*|OIDCProviderUserInfoEndpoint ${OIDC_PROVIDER_USER_INFO_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/userinfo}|" $OIDC_CONFIG
+    if [ ! -z "${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT}" ]; then 
+      sed -i "s|^\#OIDCProviderAuthorizationEndpoint .*|OIDCProviderAuthorizationEndpoint ${OIDC_PROVIDER_AUTHORIZATION_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/authorize}|" $OIDC_CONFIG
+    fi
+    if [ ! -z "${OIDC_PROVIDER_TOKEN_ENDPOINT}" ]; then
+      sed -i "s|^\#OIDCProviderTokenEndpoint .*|OIDCProviderTokenEndpoint ${OIDC_PROVIDER_TOKEN_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/token}|" $OIDC_CONFIG
+    fi
+    if [ ! -z "${OIDC_PROVIDER_TOKEN_ENDPOINT_AUTH}" ]; then
+      sed -i "s|^\#OIDCProviderTokenEndpointAuth .*|OIDCProviderTokenEndpointAuth ${OIDC_PROVIDER_TOKEN_ENDPOINT_AUTH:-client_secret_post}|" $OIDC_CONFIG
+    fi
+    if [ ! -z "${OIDC_PROVIDER_USER_INFO_ENDPOINT}" ]; then
+      sed -i "s|^\#OIDCProviderUserInfoEndpoint .*|OIDCProviderUserInfoEndpoint ${OIDC_PROVIDER_USER_INFO_ENDPOINT:-${OIDC_PROVIDER_ISSUER}/oauth2/userinfo}|" $OIDC_CONFIG
+    fi
     sed -i "s|^\#OIDCScope .*|OIDCScope \"${OIDC_SCOPE}\"|" $OIDC_CONFIG
     
     
@@ -87,7 +105,6 @@ EOF
   "auth_request_params": "skin=default"
 }
 EOF
-
   ;;
 
   shib)
@@ -137,14 +154,18 @@ EOF
     echo "=========="
 
   ;;
+  
   htpasswd)
+
     #rm -f ${OIDC_CONFIG}
     OOD_AUTH_PASSWD=/opt/rh/httpd24/root/etc/httpd/.htpasswd
     sed -i "s|^auth:|auth:\n- 'AuthType Basic'\n- AuthName 'private'\n- 'RequestHeader unset Authorization'\n- 'AuthUserFile ${OOD_AUTH_PASSWD}'|" ${OOD_CONF}
     cp /etc/ood/config/htpasswd/.htpasswd $OOD_AUTH_PASSWD
     chmod ugo+r $OOD_AUTH_PASSWD
   ;;
+
   ldap)
+
     [[ ! -z "$OOD_AUTH_LDAPBINDDN" && ! -z $OOD_AUTH_LDAPBINDPASSWORD ]] && sed -i  "s|^auth:|auth:\n- AuthLDAPBindDN '${OOD_AUTH_LDAPBINDDN}'\n- AuthLDAPBindPassword \'${OOD_AUTH_LDAPBINDPASSWORD%$'\n'}\'|" ${OOD_CONF}
     sed -i "s|^auth:|auth:\n- AuthType 'Basic'\n- AuthName 'private'\n- AuthBasicProvider 'ldap'\n- 'RequestHeader unset Authorization'\n- AuthLDAPURL '${OOD_AUTH_LDAPURL}'|" ${OOD_CONF}
     sed -i "s|^auth:|auth:\n- AuthLDAPGroupAttribute '${OOD_AUTH_LDAPGROUPATTR:-gidNumber}'\n- AuthLDAPGroupAttributeIsDN off|"  ${OOD_CONF}
@@ -154,8 +175,19 @@ EOF
 esac
 
 # user mapping
-sed -i "s|^\#user_map_cmd: .*|user_map_cmd: ${OOD_USER_MAP_CMD:-/opt/ood/ood_auth_map/bin/ood_auth_map.regex --regex=\'^(\w+)@slac.stanford.edu$\'} |"  ${OOD_CONF}
+if [ ! -z "${OOD_USER_MAP_MATCH}" ]; then
+  sed -i "s|^\#user_map_match: .*|user_map_match: ${OOD_USER_MAP_MATCH}|"  ${OOD_CONF}
+fi
+if [ ! -z "${OOD_USER_MAP_CMD}" ]; then
+  sed -i "s|^\#user_map_cmd: .*|user_map_cmd: ${OOD_USER_MAP_CMD}|"  ${OOD_CONF}
+fi
+if [ ! -z "${USER_ENV}" ]; then
+  sed -i "s|^\#user_env: .*|user_env: ${USER_ENV}|" ${OOD_CONF}
+fi
 
+# enable node proxying
+sed -i "s|^\#node_uri: .*|node_uri: '${OOD_NODE_URI:-/node}'|" ${OOD_CONF}
+sed -i "s|^\#rnode_uri: .*|rnode_uri: '${OOD_RNODE_URI:-/rnode}'|" ${OOD_CONF}
 
 # generate configs
 echo "=== $OOD_CONF ==="
@@ -166,65 +198,67 @@ echo '==='
 /opt/ood/ood-portal-generator/sbin/update_ood_portal -f
 
 # modify logs to stderr/out
-export OOD_PORTAL_CONF=/opt/rh/httpd24/root/etc/httpd/conf.d/ood-portal.conf
-sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf 
-sed -i 's:CustomLog .*:CustomLog /dev/stdout combined:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf
-sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf
+export OOD_PORTAL_CONF=/etc/httpd/conf.d/ood-portal.conf
+export HTTPD_CONF=/etc/httpd/conf/httpd.conf
+export HTTPD_SSL_CONF=/etc/httpd/conf.d/ssl.conf
+sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' ${HTTPD_CONF}
+sed -i 's:CustomLog .*:CustomLog /dev/stdout combined:g' ${HTTPD_CONF}
+sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' ${HTTPD_CONF}
 sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' ${OOD_PORTAL_CONF}
 sed -i 's:CustomLog .*:CustomLog /dev/stdout common:g' ${OOD_PORTAL_CONF}
-sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
-sed -i 's:CustomLog .*:CustomLog /dev/stdout \:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
-sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+sed -i 's:ErrorLog .*:ErrorLog /dev/stderr:g' ${HTTPD_SSL_CONF}
+sed -i 's:CustomLog .*:CustomLog /dev/stdout \:g' ${HTTPD_SSL_CONF}
+sed -i 's:TransferLog .*:TransferLog /dev/stdout:g' ${HTTPD_SSL_CONF}
 
 # disable http2
-sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
+#sed -i "s|^LoadModule http2_module|\#LoadModule http2_module|" /opt/rh/httpd24/root/etc/httpd/conf.modules.d/00-base.conf
 
 # enable docs pages
 sed -i "s|RedirectMatch ^/$ .*|RedirectMatch ^/$ \"${HTTPD_TOPLEVEL:-/public/doc}\"|" ${OOD_PORTAL_CONF}
 
 # allow CORS for cilogon
 sed -i "s|Header Set Cache-Control \"max-age=0, no-store\"|Header Set Cache-Control \"max-age=0, no-store\"\n  Header always Set Access-Control-Allow-Origin \"${OIDC_PROVIDER_ISSUER}\"\n  Header always Set Access-Control-Allow-Methods \"PUT, GET, POST, OPTIONS\"|" ${OOD_PORTAL_CONF}
-#sed -i "s|AuthType openid-connect|  AuthType openid-connect\n    Header Set Access-Control-Allow-Origin \"*\"|g" ${OOD_PORTAL_CONF}
 
 echo "=== $OOD_PORTAL_CONF ==="
 cat $OOD_PORTAL_CONF | grep -vE '^\s*\#' | grep -vE '^$'
 echo '==='
 
-# start apache
-source /opt/rh/httpd24/enable || true
-/opt/rh/httpd24/root/usr/sbin/apachectl -V
+# disable ssl
+rm -f /etc/httpd/conf.d/ssl.conf
 
-source /opt/rh/rh-nodejs10/enable || true
-#source /opt/rh/rh-ror50/enable  || true
-source /opt/rh/rh-ruby25/enable || true
+# start apache and verify config
+/usr/sbin/apachectl -V
 
 echo '=== env ==='
 env
 echo '==='
 
 # set the default ssh host
-cat <<EOF > /etc/ood/config/apps/shell/env
+mkdir -p /etc/ood/config/apps/shell/
+cat >/etc/ood/config/apps/shell/env <<EOF
 DEFAULT_SSHHOST=${OOD_DEFAULT_SSHHOST:-localhost}
 OOD_SHELL_ORIGIN_CHECK='off'
 EOF
 
-
-
-# add extra top level meny items
+# add extra top level menu items
 OOD_DASHBOARD_INIT_DIR=/etc/ood/config/apps/dashboard/initializers/
+OOD_DASHBOARD_ITEMS=${OOD_DASHBOARD_ITEMS:-"[ 'Documentation', 'Files', 'Jobs', 'Clusters', 'Interactive Apps', 'Reports' ]"}
 mkdir -p ${OOD_DASHBOARD_INIT_DIR}
-cat <<EOF > ${OOD_DASHBOARD_INIT_DIR}/ood.rb
-NavConfig.categories = [ 'Documentation', 'Files', 'Jobs', 'Clusters', 'Interactive Apps', 'Reports' ]
+cat >${OOD_DASHBOARD_INIT_DIR}/ood.rb <<EOF
+NavConfig.categories = ${OOD_DASHBOARD_ITEMS}
 NavConfig.categories_whitelist = true
 EOF
 
 # start the webserver
 if [ "${DEBUG}" == "1" ]; then
   while [ 1 ]; do
-    /opt/rh/httpd24/root/usr/sbin/apachectl -DFOREGROUND
+    /usr/sbin/apachectl -DFOREGROUND
     echo "Apache HTTPD died..."
     sleep 60
   done
+elif [ "${DEBUG}" == "2" ]; then
+  echo "Not starting HTTPD service..."
+  exit 0
 else
-  exec  /opt/rh/httpd24/root/usr/sbin/apachectl -DFOREGROUND
+  exec  /usr/sbin/apachectl -DFOREGROUND
 fi
