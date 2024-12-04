@@ -1,5 +1,4 @@
-
-namespace: ondemand-prod
+namespace: prod
 
 bases:
 - ../../base
@@ -7,20 +6,14 @@ bases:
 resources:
 - ns.yaml
 - ingress.yaml
+- sdf-home-pvc.yaml
+- ondemand-logs-pvc.yaml
+- slurm-service.yaml
 
 patchesStrategicMerge:
 - ondemand-patch.yaml
 
 secretGenerator:
-- name: auth
-  files:
-  - etc/.secrets/htpasswd
-  - etc/.secrets/oidc_client_id
-  - etc/.secrets/oidc_client_secret
-  - etc/.secrets/oidc_crypto_passphrase
-  - etc/.secrets/sp-cert.pem
-  - etc/.secrets/sp-key.pem
-# doesn't really matter as wer're fronted by the f5s which terminate the ssl
 - name: certs
   files:
   - etc/.secrets/ondemand-dev.key
@@ -28,19 +21,43 @@ secretGenerator:
   - etc/.secrets/ondemand-dev.intermediates
 
 configMapGenerator:
+- name: linuxhost-adapter-src
+  files:
+  - src/linux_host_adapter/launcher.rb
+  - src/linux_host_adapter/script_wrapper.erb.sh
+- name: ssh-config
+  files:
+  - 01-s3df.conf=etc/ssh.conf
+- name: shell-app-src
+  files:
+  - src/shell/app.js
+- name: batch-connect-app-vnc-src
+  files:
+  - src/vnc/vnc.rb
 - name: ood-config
   files:
   - etc/ood_portal.yml
-  - etc/sdf_cluster.yml
-  - etc/sdf_desktop.yml
+  - etc/s3df_desktop.yml
+- name: ood-clusters
+  files:
+  - etc/clusters.d/s3df_batch.yml
+  - etc/clusters.d/rubin_interactive.yml
+  - etc/clusters.d/supercdms_interactive.yml
+  - etc/clusters.d/iana_interactive.yml
+  - etc/clusters.d/suncat_interactive.yml
+  - etc/clusters.d/psana_interactive.yml
+  - etc/clusters.d/neutrino_interactive.yml
+  - etc/clusters.d/mli_interactive.yml
 - name: pun-html
   files:
   - etc/pun.env
   - etc/missing_home_directory.html
+- name: motd
+  options:
+    disableNameSuffixHash: true
+  files:
+  - etc/motd
 
 images:
 - name: slaclab/slac-ondemand
-  #newTag: '20210817.0'
-  newTag: '20211104.0'
-- name: slaclab/sdf-docs
-  newTag: "20220308.21"
+  newTag: 20240225-2015
