@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: sdfslurmctld
+  name: sdfslurmctld001
 spec:
   type: ExternalName
-  externalName: sdfslurmctld.sdf.slac.stanford.edu
+  externalName: sdfslurmctld001.sdf.slac.stanford.edu
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: sdfslurmdb
+  name: sdfslurmdb001
 spec:
   type: ExternalName
-  externalName: sdfslurmdb.sdf.slac.stanford.edu
+  externalName: sdfslurmdb001.sdf.slac.stanford.edu
