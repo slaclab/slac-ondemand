@@ -112,7 +112,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-jupyter.git
         - name: GIT_RELEASE
-          value: s3df
+          value: prod
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
@@ -134,7 +134,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-desktop.git
         - name: GIT_RELEASE
-          value: s3df-dev
+          value: prod
         volumeMounts:
         - mountPath: /app
           name: slac-ood-desktop
