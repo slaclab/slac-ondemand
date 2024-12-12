@@ -72,9 +72,6 @@ spec:
         - name: nginx-logs
           mountPath: /var/log/ondemand-nginx/
         # apps
-        - name: sdf-docs
-          mountPath: /var/www/ood/public/doc/
-          readOnly: true
         - name: slac-ood-jupyter
           mountPath: /var/www/ood/apps/sys/slac-ood-jupyter/
           readOnly: true
@@ -93,27 +90,6 @@ spec:
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
           readOnly: true
-      - name: sdf-docs 
-        image: slaclab/gitclone
-        resources:
-          limits:
-            ephemeral-storage: 100Mi
-          requests:
-            ephemeral-storage: 100Mi
-        env:
-        - name: http_proxy
-          value: http://sdfproxy.sdf.slac.stanford.edu:3128
-        - name: https_proxy
-          value: http://sdfproxy.sdf.slac.stanford.edu:3128
-        - name: no_proxy
-          value: .slac.stanford.edu
-        - name: GIT_REPO
-          value: https://github.com/slaclab/sdf-docs.git
-        - name: GIT_RELEASE
-          value: s3df
-        volumeMounts: 
-        - mountPath: /app
-          name: sdf-docs
       - name: slac-ood-jupyter
         image: slaclab/gitclone
         #command: ["/bin/sh","-c","sleep infinity"]
@@ -190,8 +166,6 @@ spec:
       - name: batch-connect-app-vnc-src
         configMap:
           name: batch-connect-app-vnc-src
-      - name: sdf-docs
-        emptyDir: {}
       - name: slac-ood-jupyter
         emptyDir: {}
       - name: slac-ood-cryosparc
