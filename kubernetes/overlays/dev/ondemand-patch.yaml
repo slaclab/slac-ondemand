@@ -22,7 +22,7 @@ spec:
         - name: OOD_SERVERNAME
           value: s3df-dev.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana|sdfturing\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
+          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana|sdfturing|sdfada\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
           value: s3dflogin.sdf.slac.stanford.edu
         - name: OIDC_CRYPTO_PASSPHRASE
