@@ -55,32 +55,12 @@ spec:
         - name: ood-certs
           mountPath: /etc/pki/tls/thisserver/
           readOnly: true
-        # docs
-        - name: sdf-docs
-          mountPath: /var/www/ood/public/doc/
-          readOnly: true
         # customisation
         - name: pun-html
           mountPath: /etc/ood/config/pun/html/
         - name: pun-html
           mountPath: /etc/ood/config/apps/dashboard/env
           subPath: pun.env
-      - name: sdf-docs 
-        image: slaclab/gitclone
-        env:
-        - name: http_proxy
-          value: http://sdfproxy.sdf.slac.stanford.edu:3128
-        - name: https_proxy
-          value: http://sdfproxy.sdf.slac.stanford.edu:3128
-        - name: no_proxy
-          value: .slac.stanford.edu
-        - name: GIT_REPO
-          value: https://github.com/slaclab/sdf-docs.git
-        - name: GIT_RELEASE
-          value: s3df
-        volumeMounts: 
-        - mountPath: /app
-          name: sdf-docs
       volumes:
       - name: sdf-docs
         emptyDir: {}

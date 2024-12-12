@@ -5,15 +5,15 @@ metadata:
 spec:
   template:
     spec:
-      #nodeSelector:
-      #  edu.stanford.slac.sdf.slurm: 'true'
-#      dnsConfig:
-#        options:
-#        - name: ndots
-#          value: "1"
-#        searches:
-#        - sdf.slac.stanford.edu
-#        - slac.stanford.edu
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "edu.stanford.slac.sdf.slurm"
+                operator: In
+                values:
+                - "true"
       containers:
       - name: ondemand
         imagePullPolicy: Always
