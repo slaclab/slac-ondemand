@@ -43,6 +43,10 @@ spec:
         - name: linuxhost-adapter-src
           mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
+        # ssh config
+        - name: ssh-config
+          mountPath: /etc/ssh/ssh_config.d/01-s3df.conf
+          subPath: 01-s3df.conf
         - name: shell-app-src
           mountPath: /var/www/ood/apps/sys/shell/app.js
           subPath: app.js
@@ -166,6 +170,10 @@ spec:
       - name: batch-connect-app-vnc-src
         configMap:
           name: batch-connect-app-vnc-src
+      - name: ssh-config
+        configMap:
+          name: ssh-config
+          defaultMode: 0644
       - name: slac-ood-jupyter
         emptyDir: {}
       - name: slac-ood-cryosparc
