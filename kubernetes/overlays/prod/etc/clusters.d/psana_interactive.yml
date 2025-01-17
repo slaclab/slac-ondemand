@@ -6,16 +6,17 @@ v2:
   job:
     adapter: "linux_host"
     submit_host: "psana.sdf.slac.stanford.edu"
-    ssh_hosts: 
+    ssh_hosts:
     - sdfiana001.sdf.slac.stanford.edu
     - sdfiana002.sdf.slac.stanford.edu
     - sdfiana003.sdf.slac.stanford.edu
     - sdfiana004.sdf.slac.stanford.edu
-    - sdfiana005.sdf.slac.stanford.edu
-    - sdfiana006.sdf.slac.stanford.edu
-    - sdfiana007.sdf.slac.stanford.edu
-    - sdfiana008.sdf.slac.stanford.edu
-    site_timeout: '604800' 
+    - sdfiana023.sdf.slac.stanford.edu
+    - sdfiana024.sdf.slac.stanford.edu
+    - sdfiana025.sdf.slac.stanford.edu
+    - sdfiana026.sdf.slac.stanford.edu
+    - sdfiana027.sdf.slac.stanford.edu
+    site_timeout: '604800'
     debug: false
     singularity_bin: /usr/bin/singularity
     singularity_bindpath: /etc,/media,/mnt,/opt,/run,/srv,/usr,/var,/sdf,/fs,/lscratch
