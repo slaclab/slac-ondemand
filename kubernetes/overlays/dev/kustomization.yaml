@@ -32,13 +32,19 @@ configMapGenerator:
   files:
   - src/shell/app.js
 - name: batch-connect-app-vnc-src
+  options:
+    disableNameSuffixHash: true
   files:
   - src/vnc/vnc.rb
 - name: ood-config
+  options:
+    disableNameSuffixHash: true
   files:
   - etc/ood_portal.yml
   - etc/s3df_desktop.yml
 - name: ood-clusters
+  options:
+    disableNameSuffixHash: true
   files:
   - etc/clusters.d/s3df_batch.yml
   - etc/clusters.d/rubin_interactive.yml
