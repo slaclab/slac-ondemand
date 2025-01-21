@@ -2,7 +2,7 @@ SECRET_PATH=secret/tid/sdf/ondemand/ondemand-dev
 KUBECTL_DEPLOY_CONTEXT=ondemand
 
 ensure-context:
-	if [ '$(shell kubectl config current-context)' != $(KUBECTL_DEPLOY_CONTEXT) ]; then echo "Configured deployment context inccorect; expecting $(KUBECTL_DEPLOY_CONTEXT)."; exit 1; fi
+	if [ '$(shell kubectl config current-context)' != $(KUBECTL_DEPLOY_CONTEXT) ]; then echo "Configured deployment context incorrect; expecting $(KUBECTL_DEPLOY_CONTEXT)."; exit 1; fi
 
 secrets: 
 	mkdir -p etc/.secrets
