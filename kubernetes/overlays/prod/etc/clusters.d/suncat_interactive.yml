@@ -7,14 +7,8 @@ v2:
     adapter: "linux_host"
     submit_host: "rubin-devl.sdf.slac.stanford.edu"
     ssh_hosts:
-    - sdfiana001.sdf.slac.stanford.edu
-    - sdfiana002.sdf.slac.stanford.edu
-    - sdfiana003.sdf.slac.stanford.edu
-    - sdfiana004.sdf.slac.stanford.edu
     - sdfiana005.sdf.slac.stanford.edu
     - sdfiana006.sdf.slac.stanford.edu
-    - sdfiana007.sdf.slac.stanford.edu
-    - sdfiana008.sdf.slac.stanford.edu
     site_timeout: '604800' 
     debug: true
     singularity_bin: /usr/bin/singularity
