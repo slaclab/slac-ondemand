@@ -16,7 +16,6 @@ v2:
     - sdfiana025.sdf.slac.stanford.edu
     - sdfiana026.sdf.slac.stanford.edu
     - sdfiana027.sdf.slac.stanford.edu
-    - sdfiana028.sdf.slac.stanford.edu
     site_timeout: '604800' 
     debug: false
     singularity_bin: /usr/bin/singularity
