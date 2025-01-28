@@ -78,7 +78,8 @@ kind: Ingress
 metadata:
   name: ondemand-path-redirect
   annotations:
-    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/pun/sys/dashboard
+#    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/pun/sys/dashboard
+    nginx.ingress.kubernetes.io/rewrite-target: https://s3df-dev.slac.stanford.edu/assets/ood_down_for_maintenance.html 
 spec:
   rules:
   - host: s3df-dev.slac.stanford.edu
