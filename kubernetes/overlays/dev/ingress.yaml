@@ -30,7 +30,6 @@ kind: Ingress
 metadata:
   name: ondemand
   annotations:
-    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/assets/ood_down_for_maintenance.html 
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
     nginx.ingress.kubernetes.io/client-max-body-size: "50m"
@@ -79,9 +78,7 @@ kind: Ingress
 metadata:
   name: ondemand-path-redirect
   annotations:
-#    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/pun/sys/dashboard
-#    nginx.ingress.kubernetes.io/rewrite-target: https://s3df-dev.slac.stanford.edu/assets/ood_down_for_maintenance.html 
-    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/assets/ood_down_for_maintenance.html 
+    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df-dev.slac.stanford.edu/pun/sys/dashboard
 spec:
   rules:
   - host: s3df-dev.slac.stanford.edu
