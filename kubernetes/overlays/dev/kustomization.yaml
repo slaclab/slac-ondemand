@@ -1,7 +1,5 @@
 namespace: dev
 
-bases:
-- ../../base
 
 resources:
 - ns.yaml
@@ -9,43 +7,39 @@ resources:
 - sdf-home-pvc.yaml
 - ondemand-logs-pvc.yaml
 - slurm-service.yaml
+- ../../base
 
-patchesStrategicMerge:
-- ondemand-patch.yaml
 
 secretGenerator:
-- name: certs
-  files:
+- files:
   - etc/.secrets/ondemand-dev.key
   - etc/.secrets/ondemand-dev.crt
   - etc/.secrets/ondemand-dev.intermediates
+  name: certs
 
 configMapGenerator:
-- name: linuxhost-adapter-src
-  files:
+- files:
   - src/linux_host_adapter/launcher.rb
   - src/linux_host_adapter/script_wrapper.erb.sh
-- name: ssh-config
-  files:
+  name: linuxhost-adapter-src
+- files:
   - 01-s3df.conf=etc/ssh.conf
-- name: shell-app-src
-  files:
+  name: ssh-config
+- files:
   - src/shell/app.js
-- name: batch-connect-app-vnc-src
-  options:
-    disableNameSuffixHash: true
-  files:
+  name: shell-app-src
+- files:
   - src/vnc/vnc.rb
-- name: ood-config
+  name: batch-connect-app-vnc-src
   options:
     disableNameSuffixHash: true
-  files:
+- files:
   - etc/ood_portal.yml
   - etc/s3df_desktop.yml
-- name: ood-clusters
+  name: ood-config
   options:
     disableNameSuffixHash: true
-  files:
+- files:
   - etc/clusters.d/s3df_batch.yml
   - etc/clusters.d/rubin_interactive.yml
   - etc/clusters.d/supercdms_interactive.yml
@@ -54,16 +48,23 @@ configMapGenerator:
   - etc/clusters.d/psana_interactive.yml
   - etc/clusters.d/neutrino_interactive.yml
   - etc/clusters.d/mli_interactive.yml
-- name: pun-html
-  files:
-  - etc/pun.env
-  - etc/missing_home_directory.html
-- name: motd
+  name: ood-clusters
   options:
     disableNameSuffixHash: true
-  files:
+- files:
+  - etc/pun.env
+  - etc/missing_home_directory.html
+  name: pun-html
+- files:
   - etc/motd
+  name: motd
+  options:
+    disableNameSuffixHash: true
 
 images:
 - name: slaclab/slac-ondemand
   newTag: 20240202-1302
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+patches:
+- path: ondemand-patch.yaml
