@@ -70,6 +70,20 @@ spec:
             name: ondemand
             port:
               number: 80
+      - path: /nginx/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
+      - path: /logout
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
 
 ---
 

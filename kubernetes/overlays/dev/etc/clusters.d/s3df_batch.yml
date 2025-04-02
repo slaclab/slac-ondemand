@@ -36,7 +36,7 @@ v2:
         export LC_ALL=C
 
         # deal with booting up a singularity image
-        if [ ! -z "$SINGULARITY_IMAGE" ]; then
+        if [ ! -z "${SINGULARITY_IMAGE}" ]; then
 
           #echo "Mapped ${SINGULARITY_IMAGE_TAG} to " $(echo $SINGULARITY_IMAGE | sed "s:#SINGULARITY_IMAGE_TAG:${SINGULARITY_IMAGE_TAG}:g")
           # parse any variables help in image name
@@ -49,11 +49,12 @@ v2:
 
           # start container
           export SINGULARITY_INSTANCE=$(basename -- $TMPDIR)
-          export SINGULARITY_MOUNTS=/sdf,/fs,/sdf/scratch,/lscratch,/run/user,/tmp
+          export SINGULARITY_MOUNTS=/sdf,/fs,/sdf/scratch,/lscratch,/run/user
           echo "Starting image ${SINGULARITY_IMAGE} as ${SINGULARITY_INSTANCE}..."
           OPTIONS=$(cat user_defined_context.json | awk '/SINGULARITY_OPTIONS/{ gsub(/^\s+\"SINGULARITY_OPTIONS\": \"/,"",$0); gsub(/\"\,\s*$/,"",$0); gsub(/\\r/,"",$0); print $0 }')
           echo apptainer instance start -B ${SINGULARITY_MOUNTS} --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
           apptainer instance start -B ${SINGULARITY_MOUNTS} --nv $(eval echo -e ${OPTIONS})  ${SINGULARITY_IMAGE} ${SINGULARITY_INSTANCE}
+
           EXIT=$?
           if [ "${EXIT}" != "0" ]; then
             echo "Error! could not initiate singularity container."
