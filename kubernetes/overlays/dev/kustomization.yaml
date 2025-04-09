@@ -36,7 +36,6 @@ configMapGenerator:
 - files:
   - etc/ood_portal.yml
   - etc/s3df_desktop.yml
-  - etc/nginx_stage.yml
   name: ood-config
   options:
     disableNameSuffixHash: true
