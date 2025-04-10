@@ -250,15 +250,20 @@ NavConfig.categories_whitelist = true
 EOF
 
 # start the webserver
-if [ "${DEBUG}" == "1" ]; then
-  while [ 1 ]; do
-    /usr/sbin/apachectl -DFOREGROUND
-    echo "Apache HTTPD died..."
-    sleep 60
-  done
-elif [ "${DEBUG}" == "2" ]; then
-  echo "Not starting HTTPD service..."
-  exit 0
-else
-  exec  /usr/sbin/apachectl -DFOREGROUND
-fi
+httpd
+#####################################
+# 20250409 with rocky9 and ood 3.1.1, apachectl error with "argument not supported" (even without -DFOREGROUND)
+#####################################
+#if [ "${DEBUG}" == "1" ]; then
+#  while [ 1 ]; do
+#    /usr/sbin/apachectl -DFOREGROUND
+#    echo "Apache HTTPD died..."
+#    sleep 60
+#  done
+#elif [ "${DEBUG}" == "2" ]; then
+#  echo "Not starting HTTPD service..."
+#  exit 0
+#else
+#  exec  /usr/sbin/apachectl -DFOREGROUND
+#fi
+#####################################

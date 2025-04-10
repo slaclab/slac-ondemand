@@ -1,4 +1,4 @@
-TAG ?= latest
+TAG ?= dev
 RUNTIME ?= sudo podman
 NOCACHE ?= 
 
