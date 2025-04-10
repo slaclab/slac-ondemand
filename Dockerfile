@@ -14,7 +14,7 @@ RUN groupadd -g $MUNGEUSER munge \
 RUN set -xe \
     && dnf install -y 'dnf-command(config-manager)' wget epel-release \ 
     && dnf config-manager --set-enabled crb \
-    && dnf module enable -y ruby:3.1 nodejs:18 \
+    && dnf module enable -y ruby:3.3 nodejs:20 \
     && wget https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
     && yum install -y \
@@ -49,7 +49,8 @@ RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /u
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 
 # oidc
-RUN yum install -y https://yum.osc.edu/ondemand/3.1/ondemand-release-web-3.1-1.el9.noarch.rpm \
+# RUN yum install -y https://yum.osc.edu/ondemand/3.1/ondemand-release-web-3.1-1.el9.noarch.rpm \
+RUN yum install -y https://yum.osc.edu/ondemand/4.0/ondemand-release-web-4.0-1.el9.noarch.rpm \
     && yum install --nogpgcheck -y ondemand \
     && mkdir -p /etc/ood/config/portal \
        /etc/ood/config/clusters.d \
