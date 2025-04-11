@@ -37,6 +37,9 @@ spec:
           value: "0"
         volumeMounts:
         # source code overrides
+        - name: ood-config-nginx-stage
+          mountPath: /etc/ood/config/nginx_stage.yml
+          subPath: nginx_stage.yml
         - name: linuxhost-adapter-src
           mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/launcher.rb
           subPath: launcher.rb
@@ -161,6 +164,12 @@ spec:
         - mountPath: /app
           name: slac-ood-cryosparc
       volumes:
+      - name: ood-config-nginx-stage
+        configMap:
+          name: ood-config
+          items:
+          - key: nginx_stage.yml
+            path: nginx_stage.yml
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
