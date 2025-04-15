@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM rockylinux:9
 
 # setup slurm
 # shoudl probably user a docker builder AS or something rather than doing again here... perhaps from the slurm image?
@@ -13,8 +13,8 @@ RUN groupadd -g $MUNGEUSER munge \
 
 RUN set -xe \
     && dnf install -y 'dnf-command(config-manager)' wget epel-release \ 
-    && dnf config-manager --set-enabled powertools \
-    && dnf module enable -y ruby:3.0 nodejs:14 \
+    && dnf config-manager --set-enabled crb \
+    && dnf module enable -y ruby:3.1 nodejs:18 \
     && wget https://raw.githubusercontent.com/TurboVNC/repo/main/TurboVNC.repo -O /etc/yum.repos.d/TurboVNC.repo \
     && yum -y update \
     && yum install -y \
@@ -49,7 +49,7 @@ RUN curl -L https://github.com/krallin/tini/releases/download/v0.18.0/tini -o /u
 ENV PATH=/opt/TurboVNC/bin/:${PATH}
 
 # oidc
-RUN yum install -y https://yum.osc.edu/ondemand/3.0/ondemand-release-web-3.0-1.noarch.rpm \
+RUN yum install -y https://yum.osc.edu/ondemand/3.1/ondemand-release-web-3.1-1.el9.noarch.rpm \
     && yum install --nogpgcheck -y ondemand \
     && mkdir -p /etc/ood/config/portal \
        /etc/ood/config/clusters.d \
@@ -66,19 +66,19 @@ RUN mkdir /var/spool/slurmd /var/run/slurmd /var/lib/slurmd /var/log/slurm \
 ENV PATH=/opt/slurm/bin:${PATH}
 
 # copy apps
-ENV SLAC_SDF_DOCS_VERSION=master
-ENV SLAC_SDF_DOCS_PATH=/var/www/ood/public/doc/
-RUN git clone https://github.com/slaclab/sdf-docs.git $SLAC_SDF_DOCS_PATH \
-  && cd $SLAC_SDF_DOCS_PATH \
-  && git checkout $SLAC_SDF_DOCS_VERSION && ls $SLAC_SDF_DOCS_PATH
+#ENV SLAC_SDF_DOCS_VERSION=main
+#ENV SLAC_SDF_DOCS_PATH=/var/www/ood/public/doc/
+#RUN git clone https://github.com/slaclab/sdf-docs.git $SLAC_SDF_DOCS_PATH \
+#  && cd $SLAC_SDF_DOCS_PATH \
+#  && git checkout $SLAC_SDF_DOCS_VERSION && ls $SLAC_SDF_DOCS_PATH
 
-ENV SLAC_OOD_JUPYTER_VERSION=master
+ENV SLAC_OOD_JUPYTER_VERSION=prod
 ENV SLAC_OOD_JUPYTER_PATH=/var/www/ood/apps/sys/slac-ood-jupyter
 RUN git clone https://github.com/slaclab/slac-ood-jupyter.git $SLAC_OOD_JUPYTER_PATH \
  && cd $SLAC_OOD_JUPYTER_PATH \
   && git checkout $SLAC_OOD_JUPYTER_VERSION
 
-ENV SLAC_OOD_DESKTOP_VERSION=master
+ENV SLAC_OOD_DESKTOP_VERSION=prod
 ENV SLAC_OOD_DESKTOP_PATH=/var/www/ood/apps/sys/bc_desktop
 RUN rm -rf $SLAC_OOD_DESKTOP_PATH && git clone https://github.com/slaclab/slac-ood-desktop.git $SLAC_OOD_DESKTOP_PATH \
   && cd $SLAC_OOD_DESKTOP_PATH \
@@ -90,7 +90,7 @@ RUN rm -rf $SLAC_OOD_DESKTOP_PATH && git clone https://github.com/slaclab/slac-o
 #  && cd $SLAC_OOD_MATLAB_PATH \
 #  && git checkout $SLAC_OOD_MATLAB_VERSION
 #
-ENV SLAC_OOD_CRYOSPARC_VERSION=master
+ENV SLAC_OOD_CRYOSPARC_VERSION=prod
 ENV SLAC_OOD_CRYOSPARC_PATH=/var/www/ood/apps/sys/slac-ood-cryosparc
 RUN git clone https://github.com/slaclab/slac-ood-cryosparc.git $SLAC_OOD_CRYOSPARC_PATH \
   && cd $SLAC_OOD_CRYOSPARC_PATH \
