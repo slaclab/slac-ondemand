@@ -172,6 +172,12 @@ spec:
         - mountPath: /app
           name: slac-ood-cryosparc
       volumes:
+      - name: ood-config-nginx-stage
+        configMap:
+          name: ood-config
+          items:
+          - key: nginx_stage.yml
+            path: nginx_stage.yml
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
