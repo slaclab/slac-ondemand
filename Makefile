@@ -1,4 +1,4 @@
-TAG ?= latest
+TAG ?= dev_ood3
 RUNTIME ?= sudo podman
 NOCACHE ?= 
 
