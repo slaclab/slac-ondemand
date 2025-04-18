@@ -45,9 +45,9 @@ spec:
           value: "0"
         volumeMounts:
         # source code overrides
-        - name: ood-config-nginx-stage
-          mountPath: /etc/ood/config/nginx_stage.yml
-          subPath: nginx_stage.yml
+#        - name: ood-config-nginx-stage
+#          mountPath: /etc/ood/config/nginx_stage.yml
+#          subPath: nginx_stage.yml
         - name: linuxhost-adapter-src
           mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.10-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/launcher.rb
           subPath: launcher.rb
