@@ -123,7 +123,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-jupyter.git
         - name: GIT_RELEASE
-          value: prod
+          value: main
         volumeMounts:
         - mountPath: /app
           name: slac-ood-jupyter
@@ -145,7 +145,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-desktop.git
         - name: GIT_RELEASE
-          value: prod
+          value: main
         volumeMounts:
         - mountPath: /app
           name: slac-ood-desktop
@@ -167,7 +167,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-cryosparc.git
         - name: GIT_RELEASE
-          value: prod
+          value: main
         volumeMounts:
         - mountPath: /app
           name: slac-ood-cryosparc
