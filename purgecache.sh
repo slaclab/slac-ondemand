@@ -6,5 +6,5 @@ if [ $# -eq 0 ]; then
 fi
 
 for item in "$@"; do
-    /opt/ood/nginx_stage/sbin/nginx_stage pun --skip-nginx --user $1 && /opt/ood/nginx_stage/sbin/nginx_stage nginx --signal 'reload' --user $1
+    /opt/ood/nginx_stage/sbin/nginx_stage pun --skip-nginx --user $item && /opt/ood/nginx_stage/sbin/nginx_stage nginx --signal 'reload' --user $item
 done
