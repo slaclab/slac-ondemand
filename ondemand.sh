@@ -249,21 +249,9 @@ NavConfig.categories = ${OOD_DASHBOARD_ITEMS}
 NavConfig.categories_whitelist = true
 EOF
 
-# start the webserver
-httpd
+# start the webserver in the foreground
+httpd -DFOREGROUND
 #####################################
-# 20250409 with rocky9 and ood 3.1.1, apachectl error with "argument not supported" (even without -DFOREGROUND)
-#####################################
-#if [ "${DEBUG}" == "1" ]; then
-#  while [ 1 ]; do
-#    /usr/sbin/apachectl -DFOREGROUND
-#    echo "Apache HTTPD died..."
-#    sleep 60
-#  done
-#elif [ "${DEBUG}" == "2" ]; then
-#  echo "Not starting HTTPD service..."
-#  exit 0
-#else
-#  exec  /usr/sbin/apachectl -DFOREGROUND
-#fi
+# 20250409 with rocky9 and ood 3.1.1, apachectl errors out with "argument not supported" (even without -DFOREGROUND)
+# 20250428 httpd -DFOREGROUND appears to work as expected
 #####################################

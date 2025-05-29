@@ -26,3 +26,6 @@ enter-maintenance-mode:
 
 exit-maintenance-mode:
 	kubectl apply -f ingress.yaml
+
+diff: ensure-context secrets
+	kubectl diff -k .
