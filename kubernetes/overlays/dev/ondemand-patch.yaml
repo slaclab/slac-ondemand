@@ -49,10 +49,10 @@ spec:
 #          mountPath: /etc/ood/config/nginx_stage.yml
 #          subPath: nginx_stage.yml
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.10-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/launcher.rb
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/launcher.rb
           subPath: launcher.rb
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.10-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
         # ssh config
         - name: ssh-config
@@ -62,7 +62,7 @@ spec:
           mountPath: /var/www/ood/apps/sys/shell/app.js
           subPath: app.js
         - name: batch-connect-app-vnc-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.1.10-1/gems/ood_core-0.25.0/lib/ood_core/batch_connect/templates/vnc.rb
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/batch_connect/templates/vnc.rb
           subPath: vnc.rb
         # general filesystems
         - name: sdf

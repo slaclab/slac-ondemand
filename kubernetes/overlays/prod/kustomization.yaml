@@ -64,7 +64,7 @@ configMapGenerator:
 
 images:
 - name: slaclab/slac-ondemand
-  newTag: 20250415-1833z
+  newTag: 20250528-2128z
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 patches:
