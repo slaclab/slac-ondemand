@@ -30,6 +30,11 @@ kind: Ingress
 metadata:
   name: ondemand
   annotations:
+    # sticky sessions for multiple replica deployments
+    nginx.ingress.kubernetes.io/session-cookie-name: "session-route"
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
     nginx.ingress.kubernetes.io/client-max-body-size: "50m"

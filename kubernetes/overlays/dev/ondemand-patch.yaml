@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: ondemand
 spec:
+  replicas: 5
   template:
     spec:
       affinity:
