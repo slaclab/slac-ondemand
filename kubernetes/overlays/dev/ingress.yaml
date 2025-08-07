@@ -39,8 +39,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
     nginx.ingress.kubernetes.io/client-max-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/auth-signin: "https://vouch.slac.stanford.edu/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err"
-    nginx.ingress.kubernetes.io/auth-url: https://vouch.slac.stanford.edu/validate
+    nginx.ingress.kubernetes.io/auth-signin: "https://vouch-dev.slac.stanford.edu/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err"
+    nginx.ingress.kubernetes.io/auth-url: https://vouch-dev.slac.stanford.edu/validate
     nginx.ingress.kubernetes.io/auth-response-headers: 'X-Vouch-User, X-Vouch-Idp-Claims-Name, X-Vouch-IdP-AccessToken, X-Vouch-IdP-RefreshToken, X-Vouch-IdP-IdToken, X-Vouch-Token'
     nginx.ingress.kubernetes.io/auth-snippet: |
       auth_request_set $auth_resp_jwt $upstream_http_x_vouch_IdToken;
