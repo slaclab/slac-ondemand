@@ -90,11 +90,11 @@ spec:
         #- name: slac-ood-matlab
         #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
         # logs
-        - name: dashboard-logs
+        - name: dashboard-log
           mountPath: /var/www/ood/apps/sys/dashboard/log
-        - name: activejobs-logs
+        - name: activejobs-log
           mountPath: /var/www/ood/apps/sys/activejobs/log
-        - name: pun-logs
+        - name: pun-log
           mountPath: /var/log/ondemand-nginx/
         # apps
         - name: slac-ood-jupyter
@@ -250,12 +250,12 @@ spec:
       #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-cryosparc/
       #    type: Directory
       # logs
-      - name: pun-logs
+      - name: pun-log
         persistentVolumeClaim:
-          claimName: pun-logs
-      - name: dashboard-logs
+          claimName: pun-log
+      - name: dashboard-log
         persistentVolumeClaim:
-          claimName: dashboard-logs
-      - name: activejobs-logs
+          claimName: dashboard-log
+      - name: activejobs-log
         persistentVolumeClaim:
-          claimName: activejobs-logs
+          claimName: activejobs-log

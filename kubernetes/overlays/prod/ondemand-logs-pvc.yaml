@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pun-logs
+  name: pun-log
   namespace: prod
 spec:
   accessModes:
@@ -15,7 +15,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: dashboard-logs
+  name: dashboard-log
   namespace: prod
 spec:
   accessModes:
@@ -29,7 +29,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: activejobs-logs
+  name: activejobs-log
   namespace: prod
 spec:
   accessModes:
