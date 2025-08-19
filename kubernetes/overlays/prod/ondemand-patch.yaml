@@ -94,7 +94,7 @@ spec:
           mountPath: /var/www/ood/apps/sys/dashboard/log
         - name: activejobs-logs
           mountPath: /var/www/ood/apps/sys/activejobs/log
-        - name: nginx-logs
+        - name: pun-logs
           mountPath: /var/log/ondemand-nginx/
         # apps
         - name: slac-ood-jupyter
@@ -250,15 +250,12 @@ spec:
       #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-cryosparc/
       #    type: Directory
       # logs
-      - name: nginx-logs
+      - name: pun-logs
         persistentVolumeClaim:
-          claimName: nginx-logs
+          claimName: pun-logs
       - name: dashboard-logs
         persistentVolumeClaim:
           claimName: dashboard-logs
       - name: activejobs-logs
         persistentVolumeClaim:
           claimName: activejobs-logs
-      - name: apache-logs
-        persistentVolumeClaim:
-          claimName: apache-logs
