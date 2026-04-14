@@ -103,6 +103,9 @@ spec:
         - name: slac-ood-cryosparc
           mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc/
           readOnly: true
+        - name: slac-ood-claude-code
+          mountPath: /var/www/ood/apps/sys/bc_claude_code/
+          readOnly: true
         # customisation
         - name: motd
           mountPath: /etc/motd
@@ -207,6 +210,10 @@ spec:
         emptyDir: {}
       - name: slac-ood-desktop
         emptyDir: {}
+      - name: slac-ood-claude-code
+        hostPath:
+          path: /sdf/home/y/ytl/k8s/ondemand/slac-ood-claude-code/bc_claude_code/
+          type: Directory
       - name: motd
         configMap:
           name: motd
