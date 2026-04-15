@@ -204,6 +204,8 @@ spec:
           value: https://github.com/slaclab/slac-ood-claude-code.git
         - name: GIT_RELEASE
           value: prod
+        - name: GIT_PATH
+          value: /app/bc_claude_code
         volumeMounts:
         - mountPath: /app
           name: slac-ood-claude-code
