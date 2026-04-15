@@ -203,7 +203,7 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-claude-code.git
         - name: GIT_RELEASE
-          value: main
+          value: prod
         volumeMounts:
         - mountPath: /app
           name: slac-ood-claude-code
