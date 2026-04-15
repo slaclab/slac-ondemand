@@ -105,7 +105,6 @@ spec:
           readOnly: true
         - name: slac-ood-claude-code
           mountPath: /var/www/ood/apps/sys/bc_claude_code/
-          subPath: bc_claude_code
           readOnly: true
         # customisation
         - name: motd
@@ -204,8 +203,6 @@ spec:
           value: https://github.com/slaclab/slac-ood-claude-code.git
         - name: GIT_RELEASE
           value: prod
-        - name: GIT_PATH
-          value: /app/bc_claude_code
         volumeMounts:
         - mountPath: /app
           name: slac-ood-claude-code
