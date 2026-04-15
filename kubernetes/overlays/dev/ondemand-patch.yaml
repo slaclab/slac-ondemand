@@ -105,6 +105,7 @@ spec:
           readOnly: true
         - name: slac-ood-claude-code
           mountPath: /var/www/ood/apps/sys/bc_claude_code/
+          subPath: bc_claude_code
           readOnly: true
         # customisation
         - name: motd
@@ -184,6 +185,28 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: slac-ood-cryosparc
+      - name: slac-ood-claude-code
+        image: slaclab/gitclone
+        #command: ["/bin/sh","-c","sleep infinity"]
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-claude-code.git
+        - name: GIT_RELEASE
+          value: main
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-claude-code
       volumes:
       - name: ood-config-nginx-stage
         configMap:
@@ -211,9 +234,7 @@ spec:
       - name: slac-ood-desktop
         emptyDir: {}
       - name: slac-ood-claude-code
-        hostPath:
-          path: /sdf/home/y/ytl/k8s/ondemand/slac-ood-claude-code/bc_claude_code/
-          type: Directory
+        emptyDir: {}
       - name: motd
         configMap:
           name: motd
