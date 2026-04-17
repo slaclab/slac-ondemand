@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ondemand
 spec:
-  replicas: 5
+  replicas: 1
   template:
     spec:
       affinity:
@@ -184,9 +184,9 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: slac-ood-cryosparc
+      # DEV TESTING: slac-ood-claude-code gitclone sidecar disabled — using hostPath instead
       - name: slac-ood-claude-code
         image: slaclab/gitclone
-        #command: ["/bin/sh","-c","sleep infinity"]
         resources:
           limits:
             ephemeral-storage: 100Mi
