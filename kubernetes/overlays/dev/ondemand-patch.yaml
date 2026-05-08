@@ -106,6 +106,9 @@ spec:
         - name: slac-ood-claude-code
           mountPath: /var/www/ood/apps/sys/bc_claude_code/
           readOnly: true
+        - name: slac-ood-opencode
+          mountPath: /var/www/ood/apps/sys/bc_opencode/
+          readOnly: true
         # customisation
         - name: motd
           mountPath: /etc/motd
@@ -202,10 +205,31 @@ spec:
         - name: GIT_REPO
           value: https://github.com/slaclab/slac-ood-claude-code.git
         - name: GIT_RELEASE
-          value: prod
+          value: main
         volumeMounts:
         - mountPath: /app
           name: slac-ood-claude-code
+      - name: slac-ood-opencode
+        image: slaclab/gitclone
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-opencode.git
+        - name: GIT_RELEASE
+          value: prod
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-opencode
       volumes:
       - name: ood-config-nginx-stage
         configMap:
@@ -233,6 +257,8 @@ spec:
       - name: slac-ood-desktop
         emptyDir: {}
       - name: slac-ood-claude-code
+        emptyDir: {}
+      - name: slac-ood-opencode
         emptyDir: {}
       - name: motd
         configMap:
