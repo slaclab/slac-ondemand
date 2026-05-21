@@ -49,6 +49,7 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header Remote-Name $http_x_vouch_idp_claims_name;
       proxy_set_header Remote-User $http_x_vouch_idp_claims_name;
+    nginx.ingress.kubernetes.io/whitelist-source-range: "172.16.0.0/12,134.79.0.0/16" 
 spec:
   rules:
   - host: s3df-dev.slac.stanford.edu
