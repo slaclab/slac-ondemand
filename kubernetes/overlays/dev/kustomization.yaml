@@ -49,6 +49,7 @@ configMapGenerator:
   - etc/clusters.d/psana_interactive.yml
   - etc/clusters.d/neutrino_interactive.yml
   - etc/clusters.d/mli_interactive.yml
+  - etc/clusters.d/ad_interactive.yml
   name: ood-clusters
   options:
     disableNameSuffixHash: true
