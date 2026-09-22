@@ -20,3 +20,12 @@ run-kustomize:
 dump: secrets run-kustomize clean-secrets
 
 apply: ensure-context secrets run-apply clean-secrets
+
+enter-maintenance-mode:
+	kubectl apply -f maintenance-mode-ingress.yaml
+
+exit-maintenance-mode:
+	kubectl apply -f ingress.yaml
+
+diff: ensure-context secrets
+	kubectl diff -k .

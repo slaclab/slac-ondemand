@@ -3,9 +3,19 @@ kind: Deployment
 metadata:
   name: ondemand
 spec:
+  replicas: 5
   template:
     spec:
       affinity:
+        podAntiAffinity:
+                  requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                        - ondemand
+                    topologyKey: kubernetes.io/hostname
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
@@ -14,6 +24,14 @@ spec:
                 operator: In
                 values:
                 - "true"
+              #- key: "feature.node.kubernetes.io/system-os_release.ID"
+              #  operator: In
+              #  values:
+              #  - "rocky"
+              - key: "feature.node.kubernetes.io/system-os_release.VERSION_ID.major"
+                operator: In
+                values:
+                - "9"
       containers:
       - name: ondemand
         imagePullPolicy: Always
@@ -22,7 +40,7 @@ spec:
         - name: OOD_SERVERNAME
           value: s3df.slac.stanford.edu
         - name: OOD_HOST_REGEX
-          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana|sdfturing|sdfada\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
+          value: '\(sdfrome|sdfmilan|sdfampere|sdfiana|sdfturing|sdfada|sdftorino\)\\d\{3\}\\.sdf\\.slac\\.stanford\\.edu'
         - name: OOD_DEFAULT_SSHHOST
           value: s3dflogin.sdf.slac.stanford.edu
         - name: OIDC_CRYPTO_PASSPHRASE
@@ -37,11 +55,14 @@ spec:
           value: "0"
         volumeMounts:
         # source code overrides
+#        - name: ood-config-nginx-stage
+#          mountPath: /etc/ood/config/nginx_stage.yml
+#          subPath: nginx_stage.yml
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/launcher.rb
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/launcher.rb
           subPath: launcher.rb
         - name: linuxhost-adapter-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/job/adapters/linux_host/templates/script_wrapper.erb.sh
           subPath: script_wrapper.erb.sh
         # ssh config
         - name: ssh-config
@@ -51,7 +72,7 @@ spec:
           mountPath: /var/www/ood/apps/sys/shell/app.js
           subPath: app.js
         - name: batch-connect-app-vnc-src
-          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.0/ondemand/3.0.3-1/gems/ood_core-0.23.5/lib/ood_core/batch_connect/templates/vnc.rb
+          mountPath: /opt/ood/ondemand/root/usr/share/gems/3.1/ondemand/3.1.11-1/gems/ood_core-0.25.0/lib/ood_core/batch_connect/templates/vnc.rb
           subPath: vnc.rb
         # general filesystems
         - name: sdf
@@ -69,11 +90,11 @@ spec:
         #- name: slac-ood-matlab
         #  mountPath: /var/www/ood/apps/sys/slac-ood-matlab
         # logs
-        - name: dashboard-logs
+        - name: dashboard-log
           mountPath: /var/www/ood/apps/sys/dashboard/log
-        - name: activejobs-logs
+        - name: activejobs-log
           mountPath: /var/www/ood/apps/sys/activejobs/log
-        - name: nginx-logs
+        - name: pun-log
           mountPath: /var/log/ondemand-nginx/
         # apps
         - name: slac-ood-jupyter
@@ -81,6 +102,12 @@ spec:
           readOnly: true
         - name: slac-ood-cryosparc
           mountPath: /var/www/ood/apps/sys/slac-ood-cryosparc/
+          readOnly: true
+        - name: slac-ood-claude-code
+          mountPath: /var/www/ood/apps/sys/bc_claude_code/
+          readOnly: true
+        - name: slac-ood-opencode
+          mountPath: /var/www/ood/apps/sys/bc_opencode/
           readOnly: true
         # customisation
         - name: motd
@@ -160,7 +187,55 @@ spec:
         volumeMounts:
         - mountPath: /app
           name: slac-ood-cryosparc
+      - name: slac-ood-claude-code
+        image: slaclab/gitclone
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-claude-code.git
+        - name: GIT_RELEASE
+          value: prod
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-claude-code
+      - name: slac-ood-opencode
+        image: slaclab/gitclone
+        resources:
+          limits:
+            ephemeral-storage: 100Mi
+          requests:
+            ephemeral-storage: 100Mi
+        env:
+        - name: http_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: https_proxy
+          value: http://sdfproxy.sdf.slac.stanford.edu:3128
+        - name: no_proxy
+          value: .slac.stanford.edu
+        - name: GIT_REPO
+          value: https://github.com/slaclab/slac-ood-opencode.git
+        - name: GIT_RELEASE
+          value: prod
+        volumeMounts:
+        - mountPath: /app
+          name: slac-ood-opencode
       volumes:
+      - name: ood-config-nginx-stage
+        configMap:
+          name: ood-config
+          items:
+          - key: nginx_stage.yml
+            path: nginx_stage.yml
       - name: linuxhost-adapter-src
         configMap:
           name: linuxhost-adapter-src
@@ -179,6 +254,10 @@ spec:
       - name: slac-ood-cryosparc
         emptyDir: {}
       - name: slac-ood-desktop
+        emptyDir: {}
+      - name: slac-ood-claude-code
+        emptyDir: {}
+      - name: slac-ood-opencode
         emptyDir: {}
       - name: motd
         configMap:
@@ -223,15 +302,12 @@ spec:
       #    path: /tmp/sdf/sw/ood/dev/apps/sys/slac-ood-cryosparc/
       #    type: Directory
       # logs
-      - name: nginx-logs
+      - name: pun-log
         persistentVolumeClaim:
-          claimName: nginx-logs
-      - name: dashboard-logs
+          claimName: pun-log
+      - name: dashboard-log
         persistentVolumeClaim:
-          claimName: dashboard-logs
-      - name: activejobs-logs
+          claimName: dashboard-log
+      - name: activejobs-log
         persistentVolumeClaim:
-          claimName: activejobs-logs
-      - name: apache-logs
-        persistentVolumeClaim:
-          claimName: apache-logs
+          claimName: activejobs-log

@@ -21,22 +21,22 @@
 # Unique name of this OnDemand portal used to namespace multiple hosted portals
 # NB: If this is not set then most apps will use default namespace "ondemand"
 #
-ondemand_portal: sdf
+ondemand_portal: ondemand
 
 # Title of this OnDemand portal that apps *should* display in their navbar
 # NB: If this is not set then most apps will use default title "Open OnDemand"
 #
-ondemand_title: SDF
+ondemand_title: S3DF-dev
 
 # Custom environment variables to set for the PUN environment
 # Below is an example of the use for setting env vars.
 #
 pun_custom_env:
-  OOD_DASHBOARD_TITLE: "SLAC Shared Scientific Data Facility"
+  # OOD_DASHBOARD_TITLE: "SLAC Shared Scientific Data Facility"
   # OOD_DASHBOARD_LOGO: 
   # OOD_PUBLIC_URL
   # OOD_DASHBOARD_HEADER_IMG_LOGO: 
-  OOD_BRAND_BG_COLOR: "#53565a"
+  OOD_BRAND_BG_COLOR: "#ff00ef"
   OOD_BRAND_LINK_ACTIVE_BG_COLOR: "#fff"
   # OOD_NAVBAR_TYPE
   OOD_JOB_NAME_ILLEGAL_CHARS: ""

@@ -9,6 +9,18 @@ v2:
     ssh_hosts:
     - sdfrome001.sdf.slac.stanford.edu
     - sdfrome002.sdf.slac.stanford.edu
+    - sdfiana011.sdf.slac.stanford.edu
+    - sdfiana012.sdf.slac.stanford.edu
+    - sdfiana013.sdf.slac.stanford.edu
+    - sdfiana014.sdf.slac.stanford.edu
+    - sdfiana028.sdf.slac.stanford.edu
+    - sdfiana029.sdf.slac.stanford.edu
+    - sdfiana030.sdf.slac.stanford.edu
+    - sdfiana031.sdf.slac.stanford.edu
+    - sdfiana032.sdf.slac.stanford.edu
+    - sdfiana033.sdf.slac.stanford.edu
+    - sdfiana034.sdf.slac.stanford.edu
+    - sdfiana035.sdf.slac.stanford.edu
     site_timeout: '604800' 
     debug: true
     singularity_bin: /usr/bin/singularity

@@ -1,0 +1,59 @@
+#
+# # - NOTE 2025-01-28 apply this ingress manifest manually to redirect all traffic to 
+# #  https://s3df.slac.stanford.edu/assets/ood_down_for_maintenance.html
+# #  THIS MANIFEST IS NOT INTENTED TO BE INCLUDED IN kustomization.yaml
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ondemand
+  annotations:
+    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df.slac.stanford.edu/assets/ood_down_for_maintenance.html 
+spec:
+  rules:
+  - host: s3df.slac.stanford.edu
+    http:
+      paths:
+      - path: /pun/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
+      - path: /node/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80
+      - path: /rnode/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ondemand-path-redirect
+  annotations:
+    nginx.ingress.kubernetes.io/temporal-redirect: https://s3df.slac.stanford.edu/assets/ood_down_for_maintenance.html 
+spec:
+  rules:
+  - host: s3df.slac.stanford.edu
+    http:
+      paths:
+      - path: /ondemand
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 

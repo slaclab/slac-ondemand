@@ -30,12 +30,17 @@ kind: Ingress
 metadata:
   name: ondemand
   annotations:
+    # sticky sessions for multiple replica deployments
+    nginx.ingress.kubernetes.io/session-cookie-name: "session-route"
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "30s"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "20s"
     nginx.ingress.kubernetes.io/client-max-body-size: "50m"
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-    nginx.ingress.kubernetes.io/auth-signin: "https://vouch.slac.stanford.edu/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err"
-    nginx.ingress.kubernetes.io/auth-url: https://vouch.slac.stanford.edu/validate
+    nginx.ingress.kubernetes.io/auth-signin: "https://vouch-dev.slac.stanford.edu/login?url=$scheme://$http_host$request_uri&vouch-failcount=$auth_resp_failcount&X-Vouch-Token=$auth_resp_jwt&error=$auth_resp_err"
+    nginx.ingress.kubernetes.io/auth-url: https://vouch-dev.slac.stanford.edu/validate
     nginx.ingress.kubernetes.io/auth-response-headers: 'X-Vouch-User, X-Vouch-Idp-Claims-Name, X-Vouch-IdP-AccessToken, X-Vouch-IdP-RefreshToken, X-Vouch-IdP-IdToken, X-Vouch-Token'
     nginx.ingress.kubernetes.io/auth-snippet: |
       auth_request_set $auth_resp_jwt $upstream_http_x_vouch_IdToken;
@@ -44,6 +49,7 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header Remote-Name $http_x_vouch_idp_claims_name;
       proxy_set_header Remote-User $http_x_vouch_idp_claims_name;
+    nginx.ingress.kubernetes.io/whitelist-source-range: "172.16.0.0/12,134.79.0.0/16" 
 spec:
   rules:
   - host: s3df-dev.slac.stanford.edu
@@ -70,6 +76,20 @@ spec:
             name: ondemand
             port:
               number: 80
+      - path: /nginx/
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
+      - path: /logout
+        pathType: Prefix
+        backend:
+          service:
+            name: ondemand
+            port:
+              number: 80 
 
 ---
 
