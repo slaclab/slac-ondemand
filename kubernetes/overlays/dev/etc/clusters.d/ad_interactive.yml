@@ -1,6 +1,6 @@
 v2:
   metadata:
-    title: "Interactive Analysis"
+    title: "AD Interactive"
   login:
     host: "ad.sdf.slac.stanford.edu"
   job:
