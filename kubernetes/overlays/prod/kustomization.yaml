@@ -50,7 +50,7 @@ configMapGenerator:
   - etc/clusters.d/neutrino_interactive.yml
   - etc/clusters.d/mli_interactive.yml
   - etc/clusters.d/ad_interactive.yml
-  - etc/clusters.d/hopper.yml
+  - etc/clusters.d/hopper_interactive.yml
   name: ood-clusters
   options:
     disableNameSuffixHash: true
