@@ -7,6 +7,9 @@ v2:
     adapter: "linux_host"
     submit_host: "sdfhopper001.sdf.slac.stanford.edu"
     ssh_hosts:
+    - sdfhopper001
+    - sdfhopper002
+    - sdfhopper003
     - sdfhopper001.sdf.slac.stanford.edu
     - sdfhopper002.sdf.slac.stanford.edu
     - sdfhopper003.sdf.slac.stanford.edu
