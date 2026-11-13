@@ -48,10 +48,11 @@ spec:
         - name: OOD_AUTH_METHOD
           value: raw
         - name: OOD_AUTH_RAW
-          # Gateway: authnz sends X-Auth-Request-User as <uid>@slac.stanford.edu and strips any
-          # client-sent copy; map it to the unix uid. (Vouch-era: x-vouch-idp-claims-name.)
+          # Gateway: authnz sends X-Auth-Request-User as the bare uid (the local part of the email
+          # claim, s3df-authnz derive_username) and strips any client-sent copy. The optional
+          # @slac.stanford.edu keeps the form its docs show working. (Vouch-era: x-vouch-idp-claims-name.)
           # [.] not \. : ondemand.sh pastes this into a sed replacement, which eats backslashes.
-          value: 'SetEnvIf X-Auth-Request-User "^([a-z][a-z0-9_-]*)@slac[.]stanford[.]edu$" OOD_AUTH_USER=$1'
+          value: 'SetEnvIf X-Auth-Request-User "^([a-z][a-z0-9_-]*)(@slac[.]stanford[.]edu)?$" OOD_AUTH_USER=$1'
         - name: USER_ENV
           value: OOD_AUTH_USER
         - name: DEBUG
