@@ -1,0 +1,30 @@
+# Traefik Middlewares for httproute.yaml. Kyverno injects ipStrategy.excludedIPs into ipAllowList.
+---
+# The dev Ingress had whitelist-source-range: 172.16.0.0/12,134.79.0.0/16 (prod has none)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: slac-network-allowlist
+spec:
+  ipAllowList:
+    sourceRange:
+      - 134.79.0.0/16
+      - 172.16.0.0/12
+---
+# Vouch-era identity headers authnz's strip chain leaves alone (coact precedent). OOD no longer
+# reads them, but nothing downstream should see a client-supplied copy either.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-vouch-identity
+spec:
+  headers:
+    customRequestHeaders:
+      X-Vouch-User: ""
+      X-Vouch-Idp-Claims-Name: ""
+      X-Vouch-IdP-AccessToken: ""
+      X-Vouch-IdP-RefreshToken: ""
+      X-Vouch-IdP-IdToken: ""
+      X-Vouch-Token: ""
+      Remote-User: ""
+      Remote-Name: ""

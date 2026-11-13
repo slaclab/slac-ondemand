@@ -3,7 +3,11 @@ namespace: dev
 
 resources:
 - ns.yaml
-- ingress.yaml
+# Gateway cutover: nginx only serves the maintenance redirect from here on, so it can never
+# pass a client-forged X-Auth-Request-User to OOD. Revert to ingress.yaml to roll back.
+- maintenance-mode-ingress.yaml
+- middleware.yaml
+- httproute.yaml
 - sdf-home-pvc.yaml
 - ondemand-logs-pvc.yaml
 - slurm-service.yaml
