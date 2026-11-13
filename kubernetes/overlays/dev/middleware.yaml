@@ -29,10 +29,12 @@ spec:
       X-Vouch-Token: ""
       Remote-User: ""
       Remote-Name: ""
-      # Clients only reach this route over HTTPS, but Rails saw X-Forwarded-Proto http through
-      # Traefik and rejected POSTs: "HTTP Origin header (https://...) didn't match
-      # request.base_url (http://...)" -> 422 InvalidAuthenticityToken. ingress-nginx sent https.
-      # Kept in this Middleware (already referenced by the route) so the route needn't be
-      # re-created for the vcluster plugin to rename a new ref.
+      # Clients only reach this route over HTTPS (the F5 terminates TLS), but through Traefik
+      # Rails computed base_url as http and rejected POSTs: "HTTP Origin header (https://...)
+      # didn't match request.base_url (http://...)" -> 422 InvalidAuthenticityToken.
+      # Rack reads X-Forwarded-Scheme before X-Forwarded-Proto; ingress-nginx always sent
+      # X-Forwarded-Scheme: https, Traefik sends none. Kept in this Middleware (already referenced
+      # by the route) so the route needn't be re-created for the vcluster plugin to rename a ref.
+      X-Forwarded-Scheme: "https"
       X-Forwarded-Proto: "https"
       X-Forwarded-Port: "443"
