@@ -12,7 +12,8 @@ spec:
       - 172.16.0.0/12
 ---
 # Vouch-era identity headers authnz's strip chain leaves alone (coact precedent). OOD no longer
-# reads them, but nothing downstream should see a client-supplied copy either.
+# reads them, but nothing downstream should see a client-supplied copy either. Also pins the
+# forwarded scheme/port (see below).
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -28,3 +29,10 @@ spec:
       X-Vouch-Token: ""
       Remote-User: ""
       Remote-Name: ""
+      # Clients only reach this route over HTTPS, but Rails saw X-Forwarded-Proto http through
+      # Traefik and rejected POSTs: "HTTP Origin header (https://...) didn't match
+      # request.base_url (http://...)" -> 422 InvalidAuthenticityToken. ingress-nginx sent https.
+      # Kept in this Middleware (already referenced by the route) so the route needn't be
+      # re-created for the vcluster plugin to rename a new ref.
+      X-Forwarded-Proto: "https"
+      X-Forwarded-Port: "443"
