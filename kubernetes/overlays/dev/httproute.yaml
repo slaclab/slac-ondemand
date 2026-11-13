@@ -1,0 +1,71 @@
+# Gateway API replacement for ingress.yaml. parentRefs are injected by Kyverno
+# (generate-k-mirror-vcluster-httproute-and-middleware-k-all). After the s3df-dev DNS cutover,
+# remove maintenance-mode-ingress.yaml from kustomization.yaml and kubectl delete its Ingresses.
+# Not carried over from the Ingress:
+# - cookie affinity (session-route): one replica, so nothing to pin to;
+# - proxy-read-timeout 20s / proxy-connect-timeout 30s: Traefik defaults apply; test long
+#   interactive sessions (/node, /rnode) and large uploads;
+# - client-max-body-size 50m: Traefik sets no limit by default.
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ondemand
+  annotations:
+    auth-dev.sdf.slac.stanford.edu/required: "true"
+spec:
+  hostnames:
+    - s3df-dev.slac.stanford.edu
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /pun/
+        - path:
+            type: PathPrefix
+            value: /node/
+        - path:
+            type: PathPrefix
+            value: /rnode/
+        - path:
+            type: PathPrefix
+            value: /nginx/
+        - path:
+            type: PathPrefix
+            value: /logout
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: slac-network-allowlist
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: strip-vouch-identity
+      backendRefs:
+        - name: ondemand
+          port: 80
+---
+# /ondemand -> /pun/sys/dashboard (the Ingress used temporal-redirect, i.e. 302; no auth)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ondemand-path-redirect
+spec:
+  hostnames:
+    - s3df-dev.slac.stanford.edu
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /ondemand
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /pun/sys/dashboard
+            statusCode: 302
