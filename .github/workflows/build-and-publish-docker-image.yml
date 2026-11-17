@@ -1,0 +1,29 @@
+on:
+  push:
+    branches: [ "main", "prod"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-image-name
+          IMAGE_NAME=${IMAGE_NAME,,}
+          TAG=$(date -u +%Y%m%d-%H%Mz)
+          docker build . --file Dockerfile --tag $IMAGE_NAME:$TAG
+          docker push $IMAGE_NAME:$TAG
