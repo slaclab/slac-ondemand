@@ -30,6 +30,7 @@ RUN set -xe \
         rsync \
         turbovnc \
         vim openldap-clients \
+        hwloc-libs \
     && yum clean all \
     && rm -rf /var/cache/yum 
 
