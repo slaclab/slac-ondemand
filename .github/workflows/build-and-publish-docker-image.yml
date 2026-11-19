@@ -1,4 +1,4 @@
-on:
+sZ'n:
   push:
     branches: ["publish", "main", "prod"]
 env:
