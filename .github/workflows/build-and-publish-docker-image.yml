@@ -1,4 +1,4 @@
-sZ'n:
+on:
   push:
     branches: ["publish", "main", "prod"]
 env:
@@ -32,8 +32,8 @@ jobs:
         with:
           images: ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
-          type=raw,value={{ date 'YYYY-MM-DDTHH-mm-ssZ' }}
-          type=raw,value=latest
+            type=raw,value={{ date 'YYYY-MM-DDTHH-mm-ssZ' }}
+            type=raw,value=latest
 
 #      - name: Build and push Docker image
 #        run: |
