@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ "main", "prod"]
+    branches: ["publish", "main", "prod"]
 
 jobs:
   build-and-push:
@@ -8,6 +8,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -33,3 +35,10 @@ jobs:
           TAG=$(date -u +%Y%m%d-%H%Mz)
           docker build . --file Dockerfile --tag $IMAGE_NAME:$TAG
           docker push $IMAGE_NAME:$TAG
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8  #v4.2.2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
