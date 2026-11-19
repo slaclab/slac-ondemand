@@ -1,4 +1,5 @@
 FROM rockylinux:9
+LABEL org.opencontainers.image.source="https://github.com/slaclab/slac-ondemand"
 
 # setup slurm
 # shoudl probably user a docker builder AS or something rather than doing again here... perhaps from the slurm image?
