@@ -1,4 +1,4 @@
-on:
+sZ'n:
   push:
     branches: ["publish", "main", "prod"]
 env:
@@ -30,8 +30,11 @@ jobs:
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 #v6.2
         with:
-          images: ghcr.io/${{ github.repository }}
-          
+          images: ghcr.io/${{ env.IMAGE_NAME }}
+          tags: |
+          type=raw,value={{ date 'YYYY-MM-DDTHH-mm-ssZ' }}
+          type=raw,value=latest
+
 #      - name: Build and push Docker image
 #        run: |
 #          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/my-image-name
@@ -40,6 +43,10 @@ jobs:
 #          docker build . --file Dockerfile --tag $IMAGE_NAME:$TAG
 #          docker push $IMAGE_NAME:$TAG
 #
+      - name: Get current date and time
+        id: date
+        run: echo "timestamp=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
