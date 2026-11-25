@@ -1,0 +1,40 @@
+# Traefik Middlewares for httproute.yaml. Kyverno injects ipStrategy.excludedIPs into ipAllowList.
+---
+# The dev Ingress had whitelist-source-range: 172.16.0.0/12,134.79.0.0/16 (prod has none)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: slac-network-allowlist
+spec:
+  ipAllowList:
+    sourceRange:
+      - 134.79.0.0/16
+      - 172.16.0.0/12
+---
+# Vouch-era identity headers authnz's strip chain leaves alone (coact precedent). OOD no longer
+# reads them, but nothing downstream should see a client-supplied copy either. Also pins the
+# forwarded scheme/port (see below).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-vouch-identity
+spec:
+  headers:
+    customRequestHeaders:
+      X-Vouch-User: ""
+      X-Vouch-Idp-Claims-Name: ""
+      X-Vouch-IdP-AccessToken: ""
+      X-Vouch-IdP-RefreshToken: ""
+      X-Vouch-IdP-IdToken: ""
+      X-Vouch-Token: ""
+      Remote-User: ""
+      Remote-Name: ""
+      # Clients only reach this route over HTTPS (the F5 terminates TLS), but through Traefik
+      # Rails computed base_url as http and rejected POSTs: "HTTP Origin header (https://...)
+      # didn't match request.base_url (http://...)" -> 422 InvalidAuthenticityToken.
+      # Rack reads X-Forwarded-Scheme before X-Forwarded-Proto; ingress-nginx always sent
+      # X-Forwarded-Scheme: https, Traefik sends none. Kept in this Middleware (already referenced
+      # by the route) so the route needn't be re-created for the vcluster plugin to rename a ref.
+      X-Forwarded-Scheme: "https"
+      X-Forwarded-Proto: "https"
+      X-Forwarded-Port: "443"
